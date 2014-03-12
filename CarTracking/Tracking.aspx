@@ -20,6 +20,10 @@
     <script src="hobbit/jquery-1.10.2.min.js" type="text/javascript"></script>
     <script src="hobbit/jquery-ui.min.js" type="text/javascript"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="hobbit/leaflet-routing-machine.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.Itinerary.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.Line.js" type="text/javascript"></script>
+    <script src="hobbit/Control.Geocoder.js" type="text/javascript"></script>
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <style type="text/css">
@@ -45,7 +49,7 @@
         {
             position: absolute;
             top: 100px;
-            left: 10px;
+            left: 195px;
         }
         
         body
@@ -92,12 +96,11 @@
             <img id="draggablePin" style="width: 18px; height: 33px; z-index: 10000;" title="Drag on map"
                 src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
         </div>
-        <div id="map">
-        </div>
-        <div id="vehicle-contain">
+        <div id="vehicle-contain" style="float: left">
             <h1>
                 Vehicle Detail
             </h1>
+            <input type="button" id="vehicle-refresh" value="refresh" />
             <table id="vehicleDetail" class="ui-widget ui-widget-content">
                 <thead>
                     <tr class="ui-widget-header ">
@@ -113,6 +116,8 @@
                 </tbody>
             </table>
         </div>
+        <div id="map">
+        </div>
         <div style="clear: both">
         </div>
         <div style="display: none">
@@ -123,6 +128,7 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
+        <input type="button" id="routingId" value="Get Rout" onclick="Routing();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -204,7 +210,11 @@
                     if (!canDropable(ui.draggable.attr("id"))) {return false;}
 
                     //ลาก pin มาวางแล้วทำการสร้าง marker
-                    var point = L.point(e.pageX, e.pageY + 25);
+
+                    var leftWidth = $("#vehicle-contain").width();
+                    var pinHeight = 25;
+
+                    var point = L.point(e.pageX - leftWidth, e.pageY + pinHeight);
                     var ll = map.containerPointToLatLng(point);
                     var pin = L.marker([ll.lat, ll.lng], { draggable: false });
                     pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
@@ -423,36 +433,27 @@
                     var maxZoom = map.getZoom();
                     map.setZoom(maxZoom - smarto.fitBoundZoomout);
                 },
-                error: function (msg) {
-                    var x = msg;
-                    if (x) { }
+                error: function(xhr) {
+                    var err = eval("(" + xhr.responseText + ")");
+                    alert(err.Message);
                 }
             });
         }
 
-        function getLocation() {
-
-            /*
-            $.ajax({
-            type: "POST",
-            url: "Tracking.aspx/GetGeoPointsByDeviceSn",
-            context: this,
-            data: '',
-            contentType: "application/json",
-            crossDomain: false,
-            success: function (a) {
-
-
-            },
-            error: function (msg) {
-
-            }
-            });
-            */
-        }
-
         function clearVehicleDetail() {
             $("#vehicleDetail tbody").empty();
+        }
+
+        function Routing() {
+           var routes = L.Routing.control({
+                waypoints: [
+                    L.latLng(57.74, 11.94),
+                    L.latLng(57.6792, 11.949)
+                ],
+                geocoder: L.Control.Geocoder.nominatim()
+            });
+
+            routes.addTo(map);
         }
 
     </script>

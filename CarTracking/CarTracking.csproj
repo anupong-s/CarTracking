@@ -58,6 +58,7 @@
     <Content Include="Account\Login.aspx" />
     <Content Include="Account\Register.aspx" />
     <Content Include="dragImage.aspx" />
+    <Content Include="hobbit\Control.Geocoder.js" />
     <Content Include="hobbit\css\font\hb-icon.svg" />
     <Content Include="hobbit\css\font\OpenSans-Bold-webfont.svg" />
     <Content Include="hobbit\css\font\OpenSans-BoldItalic-webfont.svg" />
@@ -74,6 +75,7 @@
     <Content Include="hobbit\css\font\sukhumvitset-text-webfont.svg" />
     <Content Include="hobbit\css\font\sukhumvitset-thin-webfont.svg" />
     <Content Include="hobbit\css\hobbit.css" />
+    <Content Include="hobbit\css\leaflet-routing-machine.css" />
     <Content Include="hobbit\hobbit-config.js" />
     <Content Include="hobbit\hobbit-min.js" />
     <Content Include="hobbit\hobbit1.js" />
@@ -87,8 +89,16 @@
     <Content Include="hobbit\images\marker-icon.png" />
     <Content Include="hobbit\images\marker-shadow.png" />
     <Content Include="hobbit\images\popup-tail.png" />
+    <Content Include="hobbit\index.js" />
     <Content Include="hobbit\jquery-1.10.2.min.js" />
     <Content Include="hobbit\jquery-ui.min.js" />
+    <Content Include="hobbit\L.Routing.Control.js" />
+    <Content Include="hobbit\L.Routing.Itinerary.js" />
+    <Content Include="hobbit\L.Routing.Line.js" />
+    <Content Include="hobbit\L.Routing.OSRM.js" />
+    <Content Include="hobbit\L.Routing.Plan.js" />
+    <Content Include="hobbit\leaflet-routing-machine.js" />
+    <Content Include="hobbit\leaflet-routing-machine.min.js" />
     <Content Include="hobbit\SmartoScript.js" />
     <Content Include="images\blank.png" />
     <Content Include="images\icoclose.png" />
