@@ -8,6 +8,7 @@
         <EntityContainer Name="CarTrackingModelStoreContainer">
           <EntitySet Name="Devices" EntityType="CarTrackingModel.Store.Devices" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="GeoPoints" EntityType="CarTrackingModel.Store.GeoPoints" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Pins" EntityType="CarTrackingModel.Store.Pins" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Vehicles" EntityType="CarTrackingModel.Store.Vehicles" store:Type="Tables" Schema="dbo" />
           <AssociationSet Name="FK_GeoPoints_Devices" Association="CarTrackingModel.Store.FK_GeoPoints_Devices">
             <End Role="Devices" EntitySet="Devices" />
@@ -34,6 +35,16 @@
           <Property Name="Latitude" Type="decimal" Nullable="false" Scale="7" />
           <Property Name="Logitude" Type="decimal" Nullable="false" Scale="7" />
           <Property Name="Heading" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Pins">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="PinName" Type="varchar" MaxLength="30" />
+          <Property Name="Latitude" Type="decimal" Scale="7" />
+          <Property Name="Longitude" Type="decimal" Scale="7" />
+          <Property Name="CreatedDate" Type="datetime" />
         </EntityType>
         <EntityType Name="Vehicles">
           <Key>
@@ -85,6 +96,7 @@
             <End Role="Device" EntitySet="Devices" />
             <End Role="Vehicle" EntitySet="Vehicles" />
           </AssociationSet>
+          <EntitySet Name="Pins" EntityType="CarTrackingModel.Pin" />
         </EntityContainer>
         <EntityType Name="Device">
           <Key>
@@ -141,6 +153,16 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Pin">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="PinName" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Type="Decimal" Name="Latitude" Precision="18" Scale="7" />
+          <Property Type="Decimal" Name="Longitude" Precision="18" Scale="7" />
+          <Property Type="DateTime" Name="CreatedDate" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -177,6 +199,17 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Pins">
+            <EntityTypeMapping TypeName="CarTrackingModel.Pin">
+              <MappingFragment StoreEntitySet="Pins">
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="Longitude" ColumnName="Longitude" />
+                <ScalarProperty Name="Latitude" ColumnName="Latitude" />
+                <ScalarProperty Name="PinName" ColumnName="PinName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -209,6 +242,7 @@
           <ConnectorPoint PointX="3.875" PointY="1.6439925130208328" />
           <ConnectorPoint PointX="2.5" PointY="1.6439925130208328" />
         </AssociationConnector>
+        <EntityTypeShape EntityType="CarTrackingModel.Pin" Width="1.5" PointX="4" PointY="3.25" Height="1.9802864583333335" />
       </Diagram>
     </Diagrams>
   </Designer>

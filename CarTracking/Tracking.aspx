@@ -154,16 +154,15 @@
                      $.ajax({
                          type: "POST",
                          url: "Tracking.aspx/SavePin",                         
-                         data: "{ 'pinName': '"+ pinName +"'}",
+                         data: "{ 'pinName': '"+ pinName +"','lat': '"+ latLng.lat +"','lng': '"+ latLng.lng +"'}",
                          contentType: "application/json",                         
                          success: function() {
                              alert('Successfully');
                             $("#dialog-form").dialog( "close" );    
                          },
-                         error: function(msg) {
-                             var x = msg;
-                             if (x) {
-                             }
+                         error: function(xhr) {
+                             var err = eval("(" + xhr.responseText + ")");
+                             alert(err.Message);
                          }
                      });
                 }

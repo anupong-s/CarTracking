@@ -40,9 +40,10 @@ namespace CarTracking
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static void SavePin(string pinName, string lat, string lng)
+        public static void SavePin(string pinName, decimal lat, decimal lng)
         {
-            //save pin
+            var presenter = new TrackingPresenter();
+            presenter.SavePin(pinName, lat, lng);
         }
 
     }

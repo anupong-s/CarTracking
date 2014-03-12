@@ -118,6 +118,22 @@ namespace CarTracking.Model
             }
         }
         private ObjectSet<Vehicle> _Vehicles;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<Pin> Pins
+        {
+            get
+            {
+                if ((_Pins == null))
+                {
+                    _Pins = base.CreateObjectSet<Pin>("Pins");
+                }
+                return _Pins;
+            }
+        }
+        private ObjectSet<Pin> _Pins;
 
         #endregion
         #region AddTo Methods
@@ -144,6 +160,14 @@ namespace CarTracking.Model
         public void AddToVehicles(Vehicle vehicle)
         {
             base.AddObject("Vehicles", vehicle);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the Pins EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToPins(Pin pin)
+        {
+            base.AddObject("Pins", pin);
         }
 
         #endregion
@@ -478,6 +502,157 @@ namespace CarTracking.Model
         }
 
         #endregion
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="CarTrackingModel", Name="Pin")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class Pin : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new Pin object.
+        /// </summary>
+        /// <param name="id">Initial value of the Id property.</param>
+        public static Pin CreatePin(global::System.Int32 id)
+        {
+            Pin pin = new Pin();
+            pin.Id = id;
+            return pin;
+        }
+
+        #endregion
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                if (_Id != value)
+                {
+                    OnIdChanging(value);
+                    ReportPropertyChanging("Id");
+                    _Id = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("Id");
+                    OnIdChanged();
+                }
+            }
+        }
+        private global::System.Int32 _Id;
+        partial void OnIdChanging(global::System.Int32 value);
+        partial void OnIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public global::System.String PinName
+        {
+            get
+            {
+                return _PinName;
+            }
+            set
+            {
+                OnPinNameChanging(value);
+                ReportPropertyChanging("PinName");
+                _PinName = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("PinName");
+                OnPinNameChanged();
+            }
+        }
+        private global::System.String _PinName;
+        partial void OnPinNameChanging(global::System.String value);
+        partial void OnPinNameChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Decimal> Latitude
+        {
+            get
+            {
+                return _Latitude;
+            }
+            set
+            {
+                OnLatitudeChanging(value);
+                ReportPropertyChanging("Latitude");
+                _Latitude = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Latitude");
+                OnLatitudeChanged();
+            }
+        }
+        private Nullable<global::System.Decimal> _Latitude;
+        partial void OnLatitudeChanging(Nullable<global::System.Decimal> value);
+        partial void OnLatitudeChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Decimal> Longitude
+        {
+            get
+            {
+                return _Longitude;
+            }
+            set
+            {
+                OnLongitudeChanging(value);
+                ReportPropertyChanging("Longitude");
+                _Longitude = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Longitude");
+                OnLongitudeChanged();
+            }
+        }
+        private Nullable<global::System.Decimal> _Longitude;
+        partial void OnLongitudeChanging(Nullable<global::System.Decimal> value);
+        partial void OnLongitudeChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.DateTime> CreatedDate
+        {
+            get
+            {
+                return _CreatedDate;
+            }
+            set
+            {
+                OnCreatedDateChanging(value);
+                ReportPropertyChanging("CreatedDate");
+                _CreatedDate = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("CreatedDate");
+                OnCreatedDateChanged();
+            }
+        }
+        private Nullable<global::System.DateTime> _CreatedDate;
+        partial void OnCreatedDateChanging(Nullable<global::System.DateTime> value);
+        partial void OnCreatedDateChanged();
+
+        #endregion
+    
     }
     
     /// <summary>

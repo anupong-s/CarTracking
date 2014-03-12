@@ -56,5 +56,25 @@ namespace CarTracking
                 return geoPoint == null ? new GeoPointInfo() : new GeoPointInfo(geoPoint);
             }
         }
+
+        public void SavePin(string pinName, decimal lat, decimal lng)
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                var hasPinName = ctx.Pins.Any(s => s.PinName == pinName);
+                if (hasPinName) { throw new Exception("Pin name is duplicate"); }
+
+                var pin = new Pin
+                {
+                    PinName = pinName,
+                    Latitude = lat,
+                    Longitude = lng,
+                    CreatedDate = DateTime.Now
+                };
+
+                ctx.Pins.AddObject(pin);
+                ctx.SaveChanges();
+            }
+        }
     }
 }
