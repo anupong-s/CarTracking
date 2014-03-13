@@ -20,10 +20,6 @@
     <script src="hobbit/jquery-1.10.2.min.js" type="text/javascript"></script>
     <script src="hobbit/jquery-ui.min.js" type="text/javascript"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-    <script src="hobbit/leaflet-routing-machine.js" type="text/javascript"></script>
-    <script src="hobbit/L.Routing.Itinerary.js" type="text/javascript"></script>
-    <script src="hobbit/L.Routing.Line.js" type="text/javascript"></script>
-    <script src="hobbit/Control.Geocoder.js" type="text/javascript"></script>
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <style type="text/css">
@@ -128,7 +124,7 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
-        <input type="button" id="routingId" value="Get Rout" onclick="Routing();" />
+        <input type="button" id="routingId" value="Get Rout" onclick="routingLine();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -153,24 +149,24 @@
             resizable: false,
             buttons: {
                 "Save": function () {
-                    var pinName = $("#pin-name").val();                    
+                    var pinName = $("#pin-name").val();
                     var marker = map._layers[smarto.pinId];
                     var latLng = marker._latlng;
 
-                     $.ajax({
-                         type: "POST",
-                         url: "Tracking.aspx/SavePin",                         
-                         data: "{ 'pinName': '"+ pinName +"','lat': '"+ latLng.lat +"','lng': '"+ latLng.lng +"'}",
-                         contentType: "application/json",                         
-                         success: function() {
-                             alert('Successfully');
-                            $("#dialog-form").dialog( "close" );    
-                         },
-                         error: function(xhr) {
-                             var err = eval("(" + xhr.responseText + ")");
-                             alert(err.Message);
-                         }
-                     });
+                    $.ajax({
+                        type: "POST",
+                        url: "Tracking.aspx/SavePin",
+                        data: "{ 'pinName': '" + pinName + "','lat': '" + latLng.lat + "','lng': '" + latLng.lng + "'}",
+                        contentType: "application/json",
+                        success: function () {
+                            alert('Successfully');
+                            $("#dialog-form").dialog("close");
+                        },
+                        error: function (xhr) {
+                            var err = eval("(" + xhr.responseText + ")");
+                            alert(err.Message);
+                        }
+                    });
                 }
             }
         });
@@ -187,27 +183,27 @@
             //addMarker();
         });
 
-        $(document).ready(function() {
-            document.oncontextmenu = function() {return false;};
+        $(document).ready(function () {
+            document.oncontextmenu = function () { return false; };
 
             gDrag.jq = $('#gmarker');
             gDrag.jq.mousedown(function (e) {
-                if (e.button == 2) {                    
+                if (e.button == 2) {
                     $("#dialog-form").dialog("open");
                     return false;
                 }
                 return true;
             });
-            
+
             $("#draggablePin").draggable({
                 helper: 'clone',
                 containment: "#form1",
-                stop: function() {}
+                stop: function () { }
             });
 
             $("#map").droppable({
                 drop: function (e, ui) {
-                    if (!canDropable(ui.draggable.attr("id"))) {return false;}
+                    if (!canDropable(ui.draggable.attr("id"))) { return false; }
 
                     //ลาก pin มาวางแล้วทำการสร้าง marker
 
@@ -223,41 +219,41 @@
 
                     hidePin();
 
-                    pin.addEventListener('mouseout', function() {
+                    pin.addEventListener('mouseout', function () {
                         pin.closePopup();
                         smarto.isOpenPopup = false;
                     });
-                    
-                    pin.addEventListener('mouseover', function() {                                                 
-                        if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
-                         
-                            if (!smarto.isOpenPopup) {                                
-                                smarto.isOpenPopup = true;
-                                pin.openPopup();
-                                }
 
-                            gDrag.jq.mouseover(function() {
-                                if (!smarto.isOpenPopup) {                                
+                    pin.addEventListener('mouseover', function () {
+                        if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
+
+                            if (!smarto.isOpenPopup) {
                                 smarto.isOpenPopup = true;
                                 pin.openPopup();
+                            }
+
+                            gDrag.jq.mouseover(function () {
+                                if (!smarto.isOpenPopup) {
+                                    smarto.isOpenPopup = true;
+                                    pin.openPopup();
                                 }
                             });
 
-                            gDrag.jq.mouseout(function() {
+                            gDrag.jq.mouseout(function () {
                                 pin.closePopup();
                                 smarto.isOpenPopup = false;
                             });
-                           
+
                             gDrag.item = this;
                             gDrag.jq.offset({
-                                top: gDrag.y-10,
-                                left: gDrag.x-10
+                                top: gDrag.y - 10,
+                                left: gDrag.x - 10
                             });
 
-                            gDrag.jq.css('cursor','move');
+                            gDrag.jq.css('cursor', 'move');
                         }
                     });
-                    
+
                     //สร้าง Geofence
                     map.removeLayer(smarto.circle);
                     var centerCircle = L.latLng(ll.lat, ll.lng);
@@ -269,34 +265,39 @@
                     clearVehicleDetail();
                     for (var i = 0; i < smarto.markers.length; i++) {
                         var m = smarto.markers[i];
+                        getDistance(m.Lp, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
+
+
+                        /*
                         var vehicleLatLng = L.latLng(m._latlng.lat, m._latlng.lng);
                         var isContain = bounds.contains(vehicleLatLng);
                         var distance = centerCircle.distanceTo(vehicleLatLng);
                         if (isContain && (distance <= smarto.radius)) {
-                            var d = distance / 1E3;
+                        var d = distance / 1E3;
 
-                            $( "#vehicleDetail tbody" ).append( "<tr>" +
-                                "<td>" + m.Lp + "</td>" +
-                                "<td>" + d.toFixed(2) + "</td>" +
-                                "</tr>" );
+                        $( "#vehicleDetail tbody" ).append( "<tr>" +
+                        "<td>" + m.Lp + "</td>" +
+                        "<td>" + d.toFixed(2) + "</td>" +
+                        "</tr>" );
                         }
-                    }                                      
-                },
-            });
-            
-            gDrag.jq.draggable({                
-                start: function(event, ui) {
-                    if (gDrag.item._icon == null) {return false;}
-                    
-                    gDrag.jq.html('<img src="'+ gDrag.item._icon.src +'" style="z-index: 20000;" />');                    
-                    removeMarkerById(gDrag.item._leaflet_id);                    
-                },
-                stop: function(event, ui){
-                    gDrag.jq.html('');                    
+                        */
+                    }
                 }
             });
 
-            $(document).mousemove(function(event){
+            gDrag.jq.draggable({
+                start: function (event, ui) {
+                    if (gDrag.item._icon == null) { return false; }
+
+                    gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
+                    removeMarkerById(gDrag.item._leaflet_id);
+                },
+                stop: function (event, ui) {
+                    gDrag.jq.html('');
+                }
+            });
+
+            $(document).mousemove(function (event) {
                 gDrag.x = event.pageX;
                 gDrag.y = event.pageY;
             });
@@ -305,7 +306,7 @@
                 accept: "#gmarker",
                 activeClass: "drophere",
                 hoverClass: "dropaccept",
-                drop: function(event, ui, item){
+                drop: function (event, ui, item) {
 
                     if (smarto.pinId == gDrag.item._leaflet_id) {
                         removeMarkerById(gDrag.item._leaflet_id);
@@ -433,7 +434,7 @@
                     var maxZoom = map.getZoom();
                     map.setZoom(maxZoom - smarto.fitBoundZoomout);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     var err = eval("(" + xhr.responseText + ")");
                     alert(err.Message);
                 }
@@ -444,16 +445,56 @@
             $("#vehicleDetail tbody").empty();
         }
 
-        function Routing() {
-           var routes = L.Routing.control({
-                waypoints: [
-                    L.latLng(57.74, 11.94),
-                    L.latLng(57.6792, 11.949)
-                ],
-                geocoder: L.Control.Geocoder.nominatim()
+        function getDistance(lp, waypoints) {
+            var directionsService = new google.maps.DirectionsService();
+
+            var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
+            var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
+
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    var distance = response.routes[0].legs[0].distance.text;
+
+                    $("#vehicleDetail tbody").append("<tr>" +
+                                "<td>" + lp + "</td>" +
+                                "<td>" + distance + "</td>" +
+                                "</tr>");
+                }
+            });
+        }
+
+        var directionsDisplay;
+        function routingLine() {
+            directionsDisplay = new google.maps.DirectionsRenderer();
+            directionsDisplay.setMap(map);
+            drawLine();
+        }
+
+        function drawLine() {
+            var directionsService = new google.maps.DirectionsService();
+
+            var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
+            var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
+
+            var request = {
+                origin: '13.723183772993412,100.55179953575134',
+                destination: '13.728637,100.580805',
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    var distance = response.routes[0].legs[0].distance.text;
+                    directionsDisplay.setDirections(response);
+                }
             });
 
-            routes.addTo(map);
         }
 
     </script>
