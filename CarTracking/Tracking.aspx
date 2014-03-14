@@ -20,6 +20,11 @@
     <script src="hobbit/jquery-1.10.2.min.js" type="text/javascript"></script>
     <script src="hobbit/jquery-ui.min.js" type="text/javascript"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script src="hobbit/leaflet-routing-machine.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.OSRM.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.Line.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.Itinerary.js" type="text/javascript"></script>
+    <script src="hobbit/L.Routing.Control.js" type="text/javascript"></script>
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <style type="text/css">
@@ -124,7 +129,8 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
-        <input type="button" id="routingId" value="Get Rout" onclick="routingLine();" />
+        <input type="button" id="routingId" value="Get Rout" onclick="osrmRouting();" />
+        <input type="button" id="drawLineId" value="Get Rout" onclick="drawLine();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -266,21 +272,6 @@
                     for (var i = 0; i < smarto.markers.length; i++) {
                         var m = smarto.markers[i];
                         getDistance(m.Lp, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
-
-
-                        /*
-                        var vehicleLatLng = L.latLng(m._latlng.lat, m._latlng.lng);
-                        var isContain = bounds.contains(vehicleLatLng);
-                        var distance = centerCircle.distanceTo(vehicleLatLng);
-                        if (isContain && (distance <= smarto.radius)) {
-                        var d = distance / 1E3;
-
-                        $( "#vehicleDetail tbody" ).append( "<tr>" +
-                        "<td>" + m.Lp + "</td>" +
-                        "<td>" + d.toFixed(2) + "</td>" +
-                        "</tr>" );
-                        }
-                        */
                     }
                 }
             });
@@ -461,7 +452,7 @@
                 if (status == google.maps.DirectionsStatus.OK) {
                     var distance = response.routes[0].legs[0].distance.text;
 
-                    $("#vehicleDetail tbody").append("<tr>" +
+                    $("#vehicleDetail tbody").append("<tr onclick=\"alert('row click');\">" +
                                 "<td>" + lp + "</td>" +
                                 "<td>" + distance + "</td>" +
                                 "</tr>");
@@ -469,33 +460,30 @@
             });
         }
 
-        var directionsDisplay;
-        function routingLine() {
-            directionsDisplay = new google.maps.DirectionsRenderer();
-            directionsDisplay.setMap(map);
-            drawLine();
-        }
+        L.Routing.Line.prototype.onAdd = function () {
+            var i, pl;
 
-        function drawLine() {
-            var directionsService = new google.maps.DirectionsService();
+            //var geom = this._route.geometry,
+            var geom = new Array();
+            geom.push([13.715050000000001, 100.57624000000001]);
+            geom.push([13.7154, 100.57542000000001]);
+            geom.push([13.715800000000001, 100.57449000000001]);
+            geom.push([13.71592, 100.5742]);
+            geom.push([13.71602, 100.57425]);
+            geom.push([13.715320000000002, 100.57586]);
+            geom.push([13.715180000000002, 100.57618000000001]);
 
-            var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
-            var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
+            this._map = map;
+            this._layers = [];
+            for (i = 0; i < this.options.styles.length; i++) {
+                pl = L.polyline(geom, this.options.styles[i]).addTo(map);
 
-            var request = {
-                origin: '13.723183772993412,100.55179953575134',
-                destination: '13.728637,100.580805',
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            directionsService.route(request, function (response, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    var distance = response.routes[0].legs[0].distance.text;
-                    directionsDisplay.setDirections(response);
+                if (this.options.addWaypoints) {
+                    pl.on('mousedown', this._onLineTouched, this);
                 }
-            });
-
-        }
+                this._layers.push(pl);
+            }
+        };
 
     </script>
     </form>
