@@ -101,7 +101,7 @@
             <h1>
                 Vehicle Detail
             </h1>
-            <input type="button" id="vehicle-refresh" value="refresh" />
+            <input type="button" id="vehicle-refresh" value="refresh" onclick="calculateDistanceFromPin(smarto.pinId);" />
             <table id="vehicleDetail" class="ui-widget ui-widget-content">
                 <thead>
                     <tr class="ui-widget-header ">
@@ -129,8 +129,6 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
-        <input type="button" id="routingId" value="Get Rout" onclick="osrmRouting();" />
-        <input type="button" id="drawLineId" value="Get Rout" onclick="drawLine();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -260,19 +258,8 @@
                         }
                     });
 
-                    //สร้าง Geofence
-                    map.removeLayer(smarto.circle);
-                    var centerCircle = L.latLng(ll.lat, ll.lng);
-                    var myCircle = L.circle([ll.lat, ll.lng], 2000).addTo(map);
-                    var bounds = myCircle.getBounds();
-                    map.fitBounds(bounds);
-                    smarto.circle = myCircle;
-
-                    clearVehicleDetail();
-                    for (var i = 0; i < smarto.markers.length; i++) {
-                        var m = smarto.markers[i];
-                        getDistance(m.Lp, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
-                    }
+                    smarto.route.remove(map);
+                    calculateDistanceFromPin(smarto.pinId);
                 }
             });
 
@@ -302,6 +289,7 @@
                     if (smarto.pinId == gDrag.item._leaflet_id) {
                         removeMarkerById(gDrag.item._leaflet_id);
                         map.removeLayer(smarto.circle);
+                        smarto.pinId = 0;
                         showPin();
                         clearVehicleDetail();
                     }
@@ -310,6 +298,18 @@
                 }
             });
         });
+
+        function calculateDistanceFromPin(pinId) {
+            if (pinId <= 0) { return; }
+
+            var pin = map._layers[pinId];
+            var ll = pin._latlng;
+
+            for (var i = 0; i < smarto.markers.length; i++) {
+                var m = smarto.markers[i];
+                vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
+            }
+        }
 
         function addMarker() {
             map.setCenter([13.716466, 100.572879]);
@@ -436,7 +436,7 @@
             $("#vehicleDetail tbody").empty();
         }
 
-        function getDistance(lp, waypoints) {
+        function vehicleDistance(marker, waypoints) {
             var directionsService = new google.maps.DirectionsService();
 
             var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
@@ -448,42 +448,48 @@
                 travelMode: google.maps.TravelMode.DRIVING
             };
 
+            clearVehicleDetail();
             directionsService.route(request, function (response, status) {
                 if (status == google.maps.DirectionsStatus.OK) {
                     var distance = response.routes[0].legs[0].distance.text;
 
-                    $("#vehicleDetail tbody").append("<tr onclick=\"alert('row click');\">" +
-                                "<td>" + lp + "</td>" +
+                    $("#vehicleDetail tbody").append("<tr style=\"cursor:pointer\" onclick=\" directionPath('" + marker.Id + "'); \">" +
+                                "<td>" + marker.Lp + "</td>" +
                                 "<td>" + distance + "</td>" +
                                 "</tr>");
                 }
             });
         }
 
-        L.Routing.Line.prototype.onAdd = function () {
-            var i, pl;
+        function directionPath(markerId) {
+            var marker = getMarkerById(markerId);
+            var pin = getMarkerPin();
 
-            //var geom = this._route.geometry,
-            var geom = new Array();
-            geom.push([13.715050000000001, 100.57624000000001]);
-            geom.push([13.7154, 100.57542000000001]);
-            geom.push([13.715800000000001, 100.57449000000001]);
-            geom.push([13.71592, 100.5742]);
-            geom.push([13.71602, 100.57425]);
-            geom.push([13.715320000000002, 100.57586]);
-            geom.push([13.715180000000002, 100.57618000000001]);
+            var directionsService = new google.maps.DirectionsService();
 
-            this._map = map;
-            this._layers = [];
-            for (i = 0; i < this.options.styles.length; i++) {
-                pl = L.polyline(geom, this.options.styles[i]).addTo(map);
+            var start = new google.maps.LatLng(pin._latlng.lat, pin._latlng.lng);
+            var end = new google.maps.LatLng(marker._latlng.lat, marker._latlng.lng);
 
-                if (this.options.addWaypoints) {
-                    pl.on('mousedown', this._onLineTouched, this);
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    var paths = response.routes[0].overview_path;
+                    smarto.route.addGeometry(paths);
+                    smarto.route.addWaypoints(pin._latlng, marker._latlng);
+                    smarto.route.routeSelected(map);
                 }
-                this._layers.push(pl);
-            }
-        };
+            });
+        }
+
+        function removeLine() {
+            smarto.route.routeRemove(map);
+
+        }
 
     </script>
     </form>

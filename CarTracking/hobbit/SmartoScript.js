@@ -2,20 +2,52 @@
 smarto.fitBoundZoomout = 1;
 smarto.markers = new Array();
 smarto.isOpenPopup = false;
-smarto.circle = new L.circle;
-smarto.radius = 2000; //unit of meter
 smarto.pinId = 0;
 smarto.freezeMap = false; //ยกเลิกการ set center เวลา tracking
+smarto.route = {
+    geometry: new Array(),
+    waypoints: new Array(),
+    addGeometry: function (paths) {
+        this.geometry = new Array();
+
+        for (var i = 0; i < paths.length; i++) {
+            this.geometry.push([paths[i].k, paths[i].A]);
+        }
+    },
+    addWaypoints: function (start, end) {
+        this.waypoints = new Array();
+        this.waypoints.push([start.lat, start.lng]);
+        this.waypoints.push([end.lat, end.lng]);
+    },
+    routeSelected: function (map) {
+        this._map = map;
+        if (this._line) {
+            var layers = this._line._layers;
+            for (var v = 0; v < layers.length; v++) {
+                this._map.removeLayer(layers[v]);
+            }
+        }
+
+        this._line = new L.Routing.Line(smarto.route);
+        this._line.onAdd(map);
+    },
+    remove: function (map) {
+        this._map = map;
+        if (this._line) {
+            var layers = this._line._layers;
+            for (var v = 0; v < layers.length; v++) {
+                this._map.removeLayer(layers[v]);
+            }
+        }
+    }
+
+};
 
 smarto.mapSourceEnum = {
     EcartMaps: 0,
     GoogleMaps: 1,
     YahooMaps: 2
 };
-
-
-
-
 
 /********* test *********/
 function addMarker() {
@@ -103,4 +135,16 @@ function getVehicle() {
 
         }
     });
+}
+
+function getMarkerPin() {
+    return map._layers[smarto.pinId];
+}
+
+function getMarkerById(id) {
+    for (var i = 0; i < smarto.markers.length; i++) {
+        if (smarto.markers[i].Id == id) {
+            return smarto.markers[i];
+        }
+    }
 }

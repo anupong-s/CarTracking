@@ -34,8 +34,7 @@
 			this._map = map;
 			this._layers = [];
 			for (i = 0; i < this.options.styles.length; i++) {
-				pl = L.polyline(geom, this.options.styles[i])
-					.addTo(map);
+				pl = L.polyline(geom, this.options.styles[i]).addTo(map);
 				if (this.options.addWaypoints) {
 					pl.on('mousedown', this._onLineTouched, this);
 				}
