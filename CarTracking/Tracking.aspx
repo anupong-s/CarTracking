@@ -129,6 +129,7 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
+        <input type="button" id="sortArrayId" value="Get Vehicles" onclick="sortArray();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -451,16 +452,15 @@
             clearVehicleDetail();
             directionsService.route(request, function (response, status) {
                 if (status == google.maps.DirectionsStatus.OK) {
-                    var distance = response.routes[0].legs[0].distance.text;
-
-                    $("#vehicleDetail tbody").append("<tr style=\"cursor:pointer\" onclick=\" directionPath('" + marker.Id + "'); \">" +
-                                "<td>" + marker.Lp + "</td>" +
-                                "<td>" + distance + "</td>" +
-                                "</tr>");
+                    var value = response.routes[0].legs[0].distance.value;
+                    var text = response.routes[0].legs[0].distance.text;
+                    smarto.vehicles.addDistance(marker.Id, marker.Lp, value, text);
+                    smarto.vehicles.bindVehicleDetail();
                 }
             });
         }
 
+        //วาดเส้นบน map
         function directionPath(markerId) {
             var marker = getMarkerById(markerId);
             var pin = getMarkerPin();
@@ -486,8 +486,37 @@
             });
         }
 
-        function removeLine() {
-            smarto.route.routeRemove(map);
+        function sortArray() {
+            var status = new Array();
+            status.push({ name: 'BOB', val: 10 });
+            status.push({ name: 'TOM', val: 3 });
+            status.push({ name: 'ROB', val: 22 });
+            status.push({ name: 'JON', val: 7 });
+
+            status.sort(function (a, b) {
+                return a.val - b.val;
+            });
+
+            status.sort();
+        }
+
+
+        function sortObject() {
+            var myObj = new Object(),
+                keys = Object.keys(myObj),
+                i,
+                len = keys.length;
+
+            myObj['a'] = 'xxxxx';
+
+            keys.sort();
+
+            for (i = 0; i < len; i++) {
+                k = keys[i];
+                //document.write(myObj[k] + "<br/>");
+                alert(k + ':' + myObj[k]);
+            }
+
 
         }
 

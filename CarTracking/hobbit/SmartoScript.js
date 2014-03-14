@@ -1,6 +1,12 @@
 ﻿var smarto = function () { };
 smarto.fitBoundZoomout = 1;
 smarto.markers = new Array();
+smarto.mapSourceEnum = {
+    EcartMaps: 0,
+    GoogleMaps: 1,
+    YahooMaps: 2
+};
+
 smarto.isOpenPopup = false;
 smarto.pinId = 0;
 smarto.freezeMap = false; //ยกเลิกการ set center เวลา tracking
@@ -42,12 +48,33 @@ smarto.route = {
     }
 
 };
+smarto.vehicles = {
+    _markers: new Array(),
+    addDistance: function (id, lp, val, text) {
+        this._markers.push({ Id: id, Lp: lp, val: val, Text: text });
+    },
+    bindVehicleDetail: function () {
+        if (this._markers.length == smarto.markers.length) {
 
-smarto.mapSourceEnum = {
-    EcartMaps: 0,
-    GoogleMaps: 1,
-    YahooMaps: 2
+            this._markers.sort(function (a, b) { return a.val - b.val; });
+            for (var v = 0; v < this._markers.length; v++) {
+
+                var m = this._markers[v];
+                $("#vehicleDetail tbody").append(
+                "<tr style=\"cursor:pointer\" onclick=\" directionPath('" + m.Id + "'); \">" +
+                "<td>" + m.Lp + "</td>" +
+                "<td>" + m.Text + "</td>" +
+                "</tr>");
+
+            }
+
+            this._markers = new Array();
+        }
+    }
 };
+
+
+
 
 /********* test *********/
 function addMarker() {
