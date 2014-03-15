@@ -1,19 +1,20 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Tracking.aspx.cs" Inherits="CarTracking.Tracking" %>
 
+<%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-    <meta charset="utf-8" />
     <title>Hobbit</title>
     <meta name="description" content="" />
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="cleartype" content="on" />
-    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8;" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9;" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css"
         rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="hobbit/css/hobbit.css">
+    <link href="Scripts/select2.css" rel="stylesheet" type="text/css" />
     <script src="hobbit/hobbit-config.js" type="text/javascript"></script>
     <script src="hobbit/hobbit-min.js" type="text/javascript"></script>
     <%--<script src="hobbit/hobbit1.js" type="text/javascript"></script>--%>
@@ -26,6 +27,7 @@
     <script src="hobbit/L.Routing.Itinerary.js" type="text/javascript"></script>
     <script src="hobbit/L.Routing.Control.js" type="text/javascript"></script>
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
+    <script src="Scripts/select2.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <style type="text/css">
         html, body, #form1, #map_contain
@@ -34,6 +36,8 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: "Helvetica Neue" , Helvetica, Arial, sans-serif;
+            font-size: 12px;
         }
         #map
         {
@@ -50,13 +54,9 @@
         {
             position: absolute;
             top: 100px;
-            left: 195px;
+            left: 230px;
         }
         
-        body
-        {
-            font-size: 62.5%;
-        }
         .ui-dialog
         {
             z-index: 1000 !important;
@@ -65,18 +65,14 @@
         {
             padding: .3em;
         }
+        #vehicleDetail tr:hover
+        {
+            background-color: #3fbdd6;
+        }
     </style>
     <!-- Map Stylesheet -->
     <script type="text/javascript">
-        //Object สำหรับเก็บค่า marker และ div สำหรับการลาก marker ออกจาก Map
-        var gDrag = {
-            jq: {},
-            item: {},
-            status: 0,
-            y: 0,
-            x: 0
-        };
-
+        //Object สำหรับเก็บค่า marker และ div สำหรับการลาก marker ออกจาก Map        
         function showPin() {
             $("#draggablePin").show();
         }
@@ -92,19 +88,22 @@
 </head>
 <body>
     <form id="form1" runat="server">
+    <telerik:RadScriptManager ID="RadScriptManager1" runat="server">
+    </telerik:RadScriptManager>
     <div id="map_contain">
         <div id='shelf'>
-            <img id="draggablePin" style="width: 18px; height: 33px; z-index: 10000;" title="Drag on map"
-                src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
+            <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 10000;"
+                title="Drag on map" src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
         </div>
         <div id="vehicle-contain" style="float: left">
-            <h1>
-                Vehicle Detail
-            </h1>
+            <select id="e1" runat="server">
+            </select>
+            <p style="font-size: 14px">
+                Vehicle Detail</p>
             <input type="button" id="vehicle-refresh" value="refresh" onclick="calculateDistanceFromPin(smarto.pinId);" />
             <table id="vehicleDetail" class="ui-widget ui-widget-content">
                 <thead>
-                    <tr class="ui-widget-header ">
+                    <tr class="ui-widget-header">
                         <th>
                             License Plate
                         </th>
@@ -129,7 +128,6 @@
             <input type="button" id="getLastKnown" value="Get Last Location" onclick="getLocation();" />
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
-        <input type="button" id="sortArrayId" value="Get Vehicles" onclick="sortArray();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -141,386 +139,365 @@
                 <input type="text" name="name" id="pin-name" class="text ui-widget-content ui-corner-all" />
             </fieldset>
         </div>
+        <div id="dialog-selected-pin" title="" style="z-index: 30000">
+        </div>
     </div>
-    <script type="text/javascript">
-        var myIconUrl = '<%= MyIcon %>';
-        map = H.map("map");
+    <telerik:RadCodeBlock ID="RadCodeBlock1" runat="server">
+        <script type="text/javascript">
+            var myIconUrl = '<%= MyIcon %>';
 
-        $("#dialog-form").dialog({
-            autoOpen: false,
-            height: 120,
-            width: 350,
-            modal: false,
-            resizable: false,
-            buttons: {
-                "Save": function () {
-                    var pinName = $("#pin-name").val();
-                    var marker = map._layers[smarto.pinId];
-                    var latLng = marker._latlng;
+            map = H.map("map");
 
-                    $.ajax({
-                        type: "POST",
-                        url: "Tracking.aspx/SavePin",
-                        data: "{ 'pinName': '" + pinName + "','lat': '" + latLng.lat + "','lng': '" + latLng.lng + "'}",
-                        contentType: "application/json",
-                        success: function () {
-                            alert('Successfully');
-                            $("#dialog-form").dialog("close");
-                        },
-                        error: function (xhr) {
-                            var err = eval("(" + xhr.responseText + ")");
-                            alert(err.Message);
-                        }
-                    });
-                }
-            }
-        });
+            $("#dialog-form").dialog({
+                autoOpen: false,
+                height: 120,
+                width: 350,
+                modal: false,
+                resizable: false,
+                buttons: {
+                    "Save": function () {
+                        var pinName = $("#pin-name").val();
+                        var marker = map._layers[smarto.pinId];
+                        var latLng = marker._latlng;
 
-        $("#dialog-form").draggable({ disabled: false });
-
-        $(document).ready(function () {
-            //map.setCenter([13.756, 100.566]);
-            //map.setZoom(20);
-            //map.setBasemap(smarto.mapSourceEnum.EcartMaps);
-
-            //fitBound();
-            //addCluster();
-            //addMarker();
-        });
-
-        $(document).ready(function () {
-            document.oncontextmenu = function () { return false; };
-
-            gDrag.jq = $('#gmarker');
-            gDrag.jq.mousedown(function (e) {
-                if (e.button == 2) {
-                    $("#dialog-form").dialog("open");
-                    return false;
-                }
-                return true;
-            });
-
-            $("#draggablePin").draggable({
-                helper: 'clone',
-                containment: "#form1",
-                stop: function () { }
-            });
-
-            $("#map").droppable({
-                drop: function (e, ui) {
-                    if (!canDropable(ui.draggable.attr("id"))) { return false; }
-
-                    //ลาก pin มาวางแล้วทำการสร้าง marker
-
-                    var leftWidth = $("#vehicle-contain").width();
-                    var pinHeight = 25;
-
-                    var point = L.point(e.pageX - leftWidth, e.pageY + pinHeight);
-                    var ll = map.containerPointToLatLng(point);
-                    var pin = L.marker([ll.lat, ll.lng], { draggable: false });
-                    pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
-                    var obj = pin.addTo(map);
-                    smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
-
-                    hidePin();
-
-                    pin.addEventListener('mouseout', function () {
-                        pin.closePopup();
-                        smarto.isOpenPopup = false;
-                    });
-
-                    pin.addEventListener('mouseover', function () {
-                        if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
-
-                            if (!smarto.isOpenPopup) {
-                                smarto.isOpenPopup = true;
-                                pin.openPopup();
+                        $.ajax({
+                            type: "POST",
+                            url: "Tracking.aspx/SavePin",
+                            data: "{ 'pinName': '" + pinName + "','lat': '" + latLng.lat + "','lng': '" + latLng.lng + "'}",
+                            contentType: "application/json",
+                            success: function () {
+                                alert('Successfully');
+                                $("#dialog-form").dialog("close");
+                            },
+                            error: function (xhr) {
+                                var err = eval("(" + xhr.responseText + ")");
+                                alert(err.Message);
                             }
+                        });
+                    }
+                }
+            });
 
-                            gDrag.jq.mouseover(function () {
+            $("#dialog-form").draggable({ disabled: false });
+
+            $(document).ready(function () {
+                //map.setCenter([13.756, 100.566]);
+                //map.setZoom(20);
+                //map.setBasemap(smarto.mapSourceEnum.EcartMaps);
+
+                //fitBound();
+                //addCluster();
+                //addMarker();
+            });
+
+            var vehicleSelect = $("#e1");
+            vehicleSelect.select2({ width: "80%" });
+            vehicleSelect.click(function () {
+                var data = $("#e1").select2("data");
+                delete data.element;
+                alert("Selected data is: " + data.text);
+            });
+
+            $(document).ready(function () {
+                document.oncontextmenu = function () { return false; };
+
+                gDrag.jq = $('#gmarker');
+
+                gDrag.jq.mousedown(function (e) {
+                    if (e.button == 2) {
+                        $("#dialog-form").dialog("open");
+                        return false;
+                    }
+                    return true;
+                });
+
+                $("#draggablePin").draggable({
+                    helper: 'clone',
+                    containment: "#form1",
+                    stop: function () { }
+                });
+
+                $("#map").droppable({
+                    drop: function (e, ui) {
+                        if (!canDropable(ui.draggable.attr("id"))) { return false; }
+
+                        //ลาก pin มาวางแล้วทำการสร้าง marker
+
+                        var leftWidth = $("#vehicle-contain").width();
+                        var pinHeight = 25;
+
+                        var point = L.point(e.pageX - leftWidth, e.pageY + pinHeight);
+                        var ll = map.containerPointToLatLng(point);
+                        var pin = L.marker([ll.lat, ll.lng], { draggable: false });
+                        pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
+                        var obj = pin.addTo(map);
+                        smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
+
+                        hidePin();
+
+                        pin.addEventListener('mouseout', function () {
+                            pin.closePopup();
+                            smarto.isOpenPopup = false;
+                        });
+
+                        pin.addEventListener('mouseover', function () {
+                            if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
+
                                 if (!smarto.isOpenPopup) {
                                     smarto.isOpenPopup = true;
                                     pin.openPopup();
                                 }
-                            });
 
-                            gDrag.jq.mouseout(function () {
-                                pin.closePopup();
-                                smarto.isOpenPopup = false;
-                            });
+                                gDrag.jq.mouseover(function () {
+                                    if (!smarto.isOpenPopup) {
+                                        smarto.isOpenPopup = true;
+                                        pin.openPopup();
+                                    }
+                                });
 
-                            gDrag.item = this;
-                            gDrag.jq.offset({
-                                top: gDrag.y - 10,
-                                left: gDrag.x - 10
-                            });
+                                gDrag.jq.mouseout(function () {
+                                    pin.closePopup();
+                                    smarto.isOpenPopup = false;
+                                });
 
-                            gDrag.jq.css('cursor', 'move');
-                        }
-                    });
+                                gDrag.item = this;
+                                gDrag.jq.offset({
+                                    top: gDrag.y - 10,
+                                    left: gDrag.x - 10
+                                });
 
-                    smarto.route.remove(map);
-                    calculateDistanceFromPin(smarto.pinId);
-                }
-            });
+                                gDrag.jq.css('cursor', 'move');
+                            }
+                        });
 
-            gDrag.jq.draggable({
-                start: function (event, ui) {
-                    if (gDrag.item._icon == null) { return false; }
-
-                    gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
-                    removeMarkerById(gDrag.item._leaflet_id);
-                },
-                stop: function (event, ui) {
-                    gDrag.jq.html('');
-                }
-            });
-
-            $(document).mousemove(function (event) {
-                gDrag.x = event.pageX;
-                gDrag.y = event.pageY;
-            });
-
-            $("#map_contain").droppable({
-                accept: "#gmarker",
-                activeClass: "drophere",
-                hoverClass: "dropaccept",
-                drop: function (event, ui, item) {
-
-                    if (smarto.pinId == gDrag.item._leaflet_id) {
-                        removeMarkerById(gDrag.item._leaflet_id);
-                        map.removeLayer(smarto.circle);
-                        smarto.pinId = 0;
-                        showPin();
-                        clearVehicleDetail();
+                        smarto.route.remove(map);
+                        calculateDistanceFromPin(smarto.pinId);
                     }
+                });
 
-                    gDrag.jq.css('cursor', 'default');
-                }
+                gDrag.jq.draggable({
+                    start: function (event, ui) {
+                        if (gDrag.item._icon == null) { return false; }
+
+                        gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
+                        removeMarkerById(gDrag.item._leaflet_id);
+                    },
+                    stop: function (event, ui) {
+                        gDrag.jq.html('');
+                    }
+                });
+
+                $(document).mousemove(function (event) {
+                    gDrag.x = event.pageX;
+                    gDrag.y = event.pageY;
+                });
+
+                $("#map_contain").droppable({
+                    accept: "#gmarker",
+                    activeClass: "drophere",
+                    hoverClass: "dropaccept",
+                    drop: function (event, ui, item) {
+
+                        if (smarto.pinId == gDrag.item._leaflet_id) {
+                            removeMarkerById(gDrag.item._leaflet_id);
+                            smarto.pinId = 0;
+                            showPin();
+                            clearVehicleDetail();
+                        }
+
+                        gDrag.jq.css('cursor', 'default');
+                    }
+                });
             });
-        });
 
-        function calculateDistanceFromPin(pinId) {
-            if (pinId <= 0) { return; }
+            function calculateDistanceFromPin(pinId) {
+                if (pinId <= 0) { return; }
 
-            var pin = map._layers[pinId];
-            var ll = pin._latlng;
+                var pin = map._layers[pinId];
+                var ll = pin._latlng;
 
-            for (var i = 0; i < smarto.markers.length; i++) {
-                var m = smarto.markers[i];
-                vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
-            }
-        }
-
-        function addMarker() {
-            map.setCenter([13.716466, 100.572879]);
-
-            var myIcon = L.icon({
-                iconUrl: myIconUrl
-            });
-
-            var d = new L.Marker([13.716466, 100.572879], { draggable: true, icon: myIcon });
-            d.bindLabel('name', { noHide: true });
-            d.showLabel();
-            map.addLayer(d);
-        }
-
-        function addCluster() {
-            var cluster = new L.MarkerClusterGroup();
-
-            L.marker([13.756, 100.566]).addTo(cluster);
-            L.marker([13.795, 100.532]).addTo(cluster);
-            L.marker([13.770, 100.563]).addTo(cluster);
-
-            map.addLayer(cluster);
-        }
-
-        function fitBound() {
-
-            var markers = new Array();
-            markers.push(L.latLng(18.7878861, 98.9930942));
-            markers.push(L.latLng(8.0818592, 99.0015174));
-
-            L.marker([18.7878861, 98.9930942]).bindLabel('18.7878861,98.9930942', { noHide: true }).showLabel().addTo(map);
-            L.marker([8.0818592, 99.0015174]).bindLabel('8.0818592,99.0015174', { noHide: true }).showLabel().addTo(map);
-
-            var bounds = L.latLngBounds(markers);
-
-            map.fitBounds(bounds);
-            var maxZoom = map.getZoom();
-            map.setZoom(maxZoom - smarto.fitBoundZoomout);
-        }
-
-        function OnSetMapLayer() {
-            map.setMapLayer(1, 'road');
-        }
-
-        function OnSetBaseMap() {
-            map.setBasemap(2);
-        }
-
-        function OnDisableControl(controlName) {
-            var cmd = 'map.control.' + controlName + '.disable()';
-            eval(cmd);
-        }
-
-        function removeMarkers() {
-            for (var i = (smarto.markers.length - 1); i >= 0; i--) {
-                var id = smarto.markers[i];
-                var marker = map._layers[id];
-                if (marker || "") {
-                    map.removeLayer(marker);
-                    smarto.markers.splice(i, 1);
+                for (var i = 0; i < smarto.markers.length; i++) {
+                    var m = smarto.markers[i];
+                    vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
                 }
             }
-        }
 
-        function removeMarkerById(id) {
-            var marker = map._layers[id];
-            if (marker || "") {
-                map.removeLayer(marker);
-                for (var i = 0; i <= smarto.markers.length; i++) {
-                    var markerId = smarto.markers[i];
-                    if (markerId == id) {
+            function addMarker() {
+                map.setCenter([13.716466, 100.572879]);
+
+                var myIcon = L.icon({
+                    iconUrl: myIconUrl
+                });
+
+                var d = new L.Marker([13.716466, 100.572879], { draggable: true, icon: myIcon });
+                d.bindLabel('name', { noHide: true });
+                d.showLabel();
+                map.addLayer(d);
+            }
+
+            function addCluster() {
+                var cluster = new L.MarkerClusterGroup();
+
+                L.marker([13.756, 100.566]).addTo(cluster);
+                L.marker([13.795, 100.532]).addTo(cluster);
+                L.marker([13.770, 100.563]).addTo(cluster);
+
+                map.addLayer(cluster);
+            }
+
+            function fitBound() {
+
+                var markers = new Array();
+                markers.push(L.latLng(18.7878861, 98.9930942));
+                markers.push(L.latLng(8.0818592, 99.0015174));
+
+                L.marker([18.7878861, 98.9930942]).bindLabel('18.7878861,98.9930942', { noHide: true }).showLabel().addTo(map);
+                L.marker([8.0818592, 99.0015174]).bindLabel('8.0818592,99.0015174', { noHide: true }).showLabel().addTo(map);
+
+                var bounds = L.latLngBounds(markers);
+
+                map.fitBounds(bounds);
+                var maxZoom = map.getZoom();
+                map.setZoom(maxZoom - smarto.fitBoundZoomout);
+            }
+
+            function OnSetMapLayer() {
+                map.setMapLayer(1, 'road');
+            }
+
+            function OnSetBaseMap() {
+                map.setBasemap(2);
+            }
+
+            function OnDisableControl(controlName) {
+                var cmd = 'map.control.' + controlName + '.disable()';
+                eval(cmd);
+            }
+
+            function removeMarkers() {
+                for (var i = (smarto.markers.length - 1); i >= 0; i--) {
+                    var id = smarto.markers[i];
+                    var marker = map._layers[id];
+                    if (marker || "") {
+                        map.removeLayer(marker);
                         smarto.markers.splice(i, 1);
                     }
                 }
             }
-        }
 
-        function OpenPopupOnMap() {
-            map.openPopup("<div>test</div>", L.latLng(13.728637, 100.580805));
-        }
-
-        function getVehicle() {
-            $.ajax({
-                type: "POST",
-                url: "Tracking.aspx/GetVehicles",
-                context: this,
-                data: '',
-                contentType: "application/json",
-                crossDomain: false,
-                success: function (a) {
-
-                    removeMarkers();
-
-                    var veh = a.d;
-                    var markers = new Array();
-                    for (var i = 0; i < veh.length; i++) {
-                        var v = veh[i];
-                        var marker = L.marker([v.Lat, v.Lng])
-                            .bindLabel(v.Lp, { noHide: true })
-                            .showLabel();
-
-                        marker.Id = v.Id;
-                        marker.Lp = v.Lp;
-                        marker.DevSn = v.DevSn;
-                        marker.addTo(map);
-
-                        smarto.markers.push(marker);
-                        markers.push(L.latLng(v.Lat, v.Lng));
+            function removeMarkerById(id) {
+                var marker = map._layers[id];
+                if (marker || "") {
+                    map.removeLayer(marker);
+                    for (var i = 0; i <= smarto.markers.length; i++) {
+                        var markerId = smarto.markers[i];
+                        if (markerId == id) {
+                            smarto.markers.splice(i, 1);
+                        }
                     }
-
-                    var bounds = L.latLngBounds(markers);
-                    map.fitBounds(bounds);
-                    var maxZoom = map.getZoom();
-                    map.setZoom(maxZoom - smarto.fitBoundZoomout);
-                },
-                error: function (xhr) {
-                    var err = eval("(" + xhr.responseText + ")");
-                    alert(err.Message);
                 }
-            });
-        }
-
-        function clearVehicleDetail() {
-            $("#vehicleDetail tbody").empty();
-        }
-
-        function vehicleDistance(marker, waypoints) {
-            var directionsService = new google.maps.DirectionsService();
-
-            var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
-            var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
-
-            var request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            clearVehicleDetail();
-            directionsService.route(request, function (response, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    var value = response.routes[0].legs[0].distance.value;
-                    var text = response.routes[0].legs[0].distance.text;
-                    smarto.vehicles.addDistance(marker.Id, marker.Lp, value, text);
-                    smarto.vehicles.bindVehicleDetail();
-                }
-            });
-        }
-
-        //วาดเส้นบน map
-        function directionPath(markerId) {
-            var marker = getMarkerById(markerId);
-            var pin = getMarkerPin();
-
-            var directionsService = new google.maps.DirectionsService();
-
-            var start = new google.maps.LatLng(pin._latlng.lat, pin._latlng.lng);
-            var end = new google.maps.LatLng(marker._latlng.lat, marker._latlng.lng);
-
-            var request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            directionsService.route(request, function (response, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    var paths = response.routes[0].overview_path;
-                    smarto.route.addGeometry(paths);
-                    smarto.route.addWaypoints(pin._latlng, marker._latlng);
-                    smarto.route.routeSelected(map);
-                }
-            });
-        }
-
-        function sortArray() {
-            var status = new Array();
-            status.push({ name: 'BOB', val: 10 });
-            status.push({ name: 'TOM', val: 3 });
-            status.push({ name: 'ROB', val: 22 });
-            status.push({ name: 'JON', val: 7 });
-
-            status.sort(function (a, b) {
-                return a.val - b.val;
-            });
-
-            status.sort();
-        }
-
-
-        function sortObject() {
-            var myObj = new Object(),
-                keys = Object.keys(myObj),
-                i,
-                len = keys.length;
-
-            myObj['a'] = 'xxxxx';
-
-            keys.sort();
-
-            for (i = 0; i < len; i++) {
-                k = keys[i];
-                //document.write(myObj[k] + "<br/>");
-                alert(k + ':' + myObj[k]);
             }
 
+            function OpenPopupOnMap() {
+                map.openPopup("<div>test</div>", L.latLng(13.728637, 100.580805));
+            }
 
-        }
+            function getVehicle() {
+                $.ajax({
+                    type: "POST",
+                    url: "Tracking.aspx/GetVehicles",
+                    context: this,
+                    data: '',
+                    contentType: "application/json",
+                    crossDomain: false,
+                    success: function (a) {
 
-    </script>
+                        removeMarkers();
+
+                        var veh = a.d;
+                        var markers = new Array();
+                        for (var i = 0; i < veh.length; i++) {
+                            var v = veh[i];
+                            var marker = L.marker([v.Lat, v.Lng])
+                                .bindLabel(v.Lp, { noHide: true })
+                                .showLabel();
+
+                            marker.Id = v.Id;
+                            marker.Lp = v.Lp;
+                            marker.DevSn = v.DevSn;
+                            marker.addTo(map);
+
+                            smarto.markers.push(marker);
+                            markers.push(L.latLng(v.Lat, v.Lng));
+                        }
+
+                        var bounds = L.latLngBounds(markers);
+                        map.fitBounds(bounds);
+                        var maxZoom = map.getZoom();
+                        map.setZoom(maxZoom - smarto.fitBoundZoomout);
+                    },
+                    error: function (xhr) {
+                        var err = eval("(" + xhr.responseText + ")");
+                        alert(err.Message);
+                    }
+                });
+            }
+
+            function clearVehicleDetail() {
+                $("#vehicleDetail tbody").empty();
+            }
+
+            function vehicleDistance(marker, waypoints) {
+                var directionsService = new google.maps.DirectionsService();
+
+                var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
+                var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
+
+                var request = {
+                    origin: start,
+                    destination: end,
+                    travelMode: google.maps.TravelMode.DRIVING
+                };
+
+                clearVehicleDetail();
+                directionsService.route(request, function (response, status) {
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        var value = response.routes[0].legs[0].distance.value;
+                        var text = response.routes[0].legs[0].distance.text;
+                        smarto.vehicles.addDistance(marker.Id, marker.Lp, value, text);
+                        smarto.vehicles.bindVehicleDetail();
+                    }
+                });
+            }
+
+            //วาดเส้นบน map
+            function directionPath(markerId) {
+                var marker = getMarkerById(markerId);
+                var pin = getMarkerPin();
+
+                var directionsService = new google.maps.DirectionsService();
+
+                var start = new google.maps.LatLng(pin._latlng.lat, pin._latlng.lng);
+                var end = new google.maps.LatLng(marker._latlng.lat, marker._latlng.lng);
+
+                var request = {
+                    origin: start,
+                    destination: end,
+                    travelMode: google.maps.TravelMode.DRIVING
+                };
+
+                directionsService.route(request, function (response, status) {
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        var paths = response.routes[0].overview_path;
+                        smarto.route.addGeometry(paths);
+                        smarto.route.addWaypoints(pin._latlng, marker._latlng);
+                        smarto.route.routeSelected(map);
+                    }
+                });
+            }
+
+        </script>
+    </telerik:RadCodeBlock>
     </form>
 </body>
 </html>

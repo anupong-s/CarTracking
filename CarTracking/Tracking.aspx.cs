@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Lifetime;
 using System.Web;
 using System.Web.Script.Services;
 using System.Web.UI;
@@ -17,7 +18,19 @@ namespace CarTracking
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                RetrieveVehicles();
+            }
+        }
 
+        private void RetrieveVehicles()
+        {
+            var vehicles = Presenter.GetVehicles();
+            e1.DataSource = vehicles;
+            e1.DataTextField = "Lp";
+            e1.DataValueField = "Id";
+            e1.DataBind();            
         }
 
         [WebMethod]
@@ -25,7 +38,7 @@ namespace CarTracking
         public static VehicleDto[] GetVehicles()
         {
             var presenter = new TrackingPresenter();
-            return presenter.GetLastKnownAllVehicles().ToArray();
+            return presenter.GetVehicles().ToArray();
         }
 
         [WebMethod]

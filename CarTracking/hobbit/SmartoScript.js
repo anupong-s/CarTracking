@@ -7,6 +7,14 @@ smarto.mapSourceEnum = {
     YahooMaps: 2
 };
 
+var gDrag = {
+    jq: {},
+    item: {},
+    status: 0,
+    y: 0,
+    x: 0
+};
+
 smarto.isOpenPopup = false;
 smarto.pinId = 0;
 smarto.freezeMap = false; //ยกเลิกการ set center เวลา tracking

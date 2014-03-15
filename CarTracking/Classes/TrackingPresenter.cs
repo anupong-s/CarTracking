@@ -8,7 +8,7 @@ namespace CarTracking
 {
     public class TrackingPresenter
     {
-        public List<VehicleDto> GetLastKnownAllVehicles()
+        public List<VehicleDto> GetVehicles()
         {
             using (var ctx = new CarTrackingEntities())
             {
