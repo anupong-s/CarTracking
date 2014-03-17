@@ -49,6 +49,7 @@
       <DependentUpon>CarTrackingModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Custom\GeoPoint.Business.cs" />
+    <Compile Include="Custom\Pins.Business.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,24 @@ namespace CarTracking
 {
     public class TrackingPresenter
     {
+        public int PinPageIndex { get; set; }
+        public int PinPageSize { get; set; }
+        public int PinCount { get; set; }
+
+        public TrackingPresenter()
+        {
+            PinPageIndex = 1;
+            PinPageSize = 10;
+        }
+
+        public static int PinsCount()
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                return ctx.Pins.Count();
+            }
+        }
+
         public List<VehicleDto> GetVehicles()
         {
             using (var ctx = new CarTrackingEntities())
@@ -76,5 +94,28 @@ namespace CarTracking
                 ctx.SaveChanges();
             }
         }
+
+        public List<PinDto> GetPins()
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                var pageSize = PinPageIndex * PinPageSize;
+                var pins = ctx.Pins.OrderBy(o => o.Id).Skip(0).Take(pageSize).ToList();
+
+                return pins.Select(pin => new PinDto(pin.Id, pin.PinName)).ToList();
+            }
+        }
+
+        public void UpdatePin(int pinId, string pinName)
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                var pin = ctx.Pins.First(p => p.Id == pinId);
+                pin.UpdatePinName(pinName);
+                ctx.SaveChanges();
+            }
+        }
+
+
     }
 }

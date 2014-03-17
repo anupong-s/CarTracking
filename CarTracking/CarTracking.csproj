@@ -179,6 +179,7 @@
     <Compile Include="Classes\GenerateByIndex.cs" />
     <Compile Include="Classes\GeoPointInfo.cs" />
     <Compile Include="Classes\Partition.cs" />
+    <Compile Include="Classes\PinDto.cs" />
     <Compile Include="Classes\TrackingPresenter.cs" />
     <Compile Include="Classes\VehicleDto.cs" />
     <Compile Include="Default.aspx.cs">

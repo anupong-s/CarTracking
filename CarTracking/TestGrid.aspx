@@ -8,36 +8,60 @@
 </head>
 <body>
     <form id="form1" runat="server">
+    <asp:ScriptManager ID="ScriptManager1" runat="server">
+    </asp:ScriptManager>
     <div id="dvGrid" style="width: 500px; height: 108px; overflow: auto;">
-        <asp:GridView ID="gvCustomers" runat="server" OnRowEditing="GridView1_RowEditing"
-            AutoGenerateColumns="False" OnRowDeleting="GridView1_RowDeleting" OnRowUpdating="GridView1_RowUpdating"
-            ShowHeader="False" OnRowCancelingEdit="GridView1_RowCancelingEdit">
-            <Columns>
-                <asp:TemplateField HeaderText="Name">
-                    <EditItemTemplate>
-                        <asp:TextBox ID="TextBox1" runat="server" Text='<%# Eval("Name") %>'></asp:TextBox>
-                    </EditItemTemplate>
-                    <ItemTemplate>
-                        <asp:Label ID="Label1" ClientIDMode="Static" runat="server" Text='<%# Eval("Name") %>'></asp:Label>
-                    </ItemTemplate>
-                </asp:TemplateField>
-                <asp:TemplateField>
-                    <ItemTemplate>
-                        <asp:LinkButton ID="LinkEdit" runat="server" ClientIDMode="Static" CommandArgument="<%# Container.DataItemIndex %>"
-                            Text="<%# Container.DataItemIndex %>" OnClick="LinkEdit_Click" CommandName="Edit"></asp:LinkButton>
-                    </ItemTemplate>
-                </asp:TemplateField>
-            </Columns>
-        </asp:GridView>
+        <asp:UpdatePanel runat="server">
+            <ContentTemplate>
+                <asp:GridView ID="gvCustomers" runat="server" OnRowEditing="GridView1_RowEditing"
+                    AutoGenerateColumns="False" OnRowDeleting="GridView1_RowDeleting" OnRowUpdating="GridView1_RowUpdating"
+                    ShowHeader="False" OnRowCancelingEdit="GridView1_RowCancelingEdit">
+                    <Columns>
+                        <asp:TemplateField HeaderText="Name">
+                            <EditItemTemplate>
+                                <asp:TextBox ID="TextBox1" runat="server" Text='<%# Eval("Name") %>'></asp:TextBox>
+                            </EditItemTemplate>
+                            <ItemTemplate>
+                                <asp:Label ID="Label1" ClientIDMode="Static" runat="server" Text='<%# Eval("Name") %>'></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField>
+                            <ItemTemplate>
+                                <asp:LinkButton ID="LinkEdit" runat="server" ClientIDMode="Static" CommandArgument="<%# Container.DataItemIndex %>"
+                                    Text="<%# Container.DataItemIndex %>" OnClick="LinkEdit_Click" CommandName="Edit"></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:CommandField ShowDeleteButton="True" ShowEditButton="True" />
+                    </Columns>
+                </asp:GridView>
+            </ContentTemplate>
+        </asp:UpdatePanel>
     </div>
+    <asp:Button ID="Button1" runat="server" Text="Button" OnClick="Button1_Click" />
+    <asp:HiddenField ID="hdnScrollPos" EnableViewState="True" runat="server" />
+    <asp:HiddenField ID="hdnPageIndex" EnableViewState="True" runat="server" />
+    <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
     </form>
     <script type="text/javascript">
         var pageIndex = 0;
-        var pageCount;
+        var pageCount = '<%= PageCount %>';
+        var scrollPos = $("#hdnScrollPos");
+        var hdPageIndex = $("#hdnPageIndex");
+
+        $(document).ready(function () {
+            if (scrollPos.val()) {
+                $("#dvGrid").scrollTop(parseInt(scrollPos.val()));
+            }
+
+            if (hdPageIndex.val()) {
+                pageIndex = hdPageIndex.val();
+            }
+        });
 
         $("#dvGrid").on("scroll", function (e) {
             var $o = $(e.currentTarget);
             if ($o[0].scrollHeight - $o.scrollTop() <= $o.outerHeight()) {
+                scrollPos.val($o.scrollTop());
                 GetRecords();
             }
         });
@@ -54,60 +78,12 @@
                     row.append('<td colspan = "999" style = "background-color:white"><img id="loader" alt="" src="103.gif" /></td>');
                     $("[id$=gvCustomers]").append(row);
                 }
-                $.ajax({
-                    type: "POST",
-                    url: "TestGrid.aspx/GetCustomers",
-                    data: '{pageIndex: ' + pageIndex + '}',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: OnSuccess,
-                    failure: function (response) {
-                        alert(response.d);
-                    },
-                    error: function (response) {
-                        alert(response.d);
-                    }
-                });
+
+                hdPageIndex.val(pageIndex);
+                __doPostBack('Button1', '');
             }
         }
 
-        //Function to recieve XML response append rows to GridView
-        function OnSuccess(response) {
-
-
-            //var xmlDoc = $.parseXML(response.d);
-            //var xml = $(xmlDoc);
-            //pageCount = parseInt(xml.find("PageCount").eq(0).find("PageCount").text());
-            //var customers = xml.find("Customers");
-            var customers = response.d;
-
-            $("[id$=gvCustomers] .loader").remove();
-
-            for (var i = 0; i < customers.length; i++) {
-                var customer = customers[i];
-                var row = $("[id$=gvCustomers] tr").eq(0).clone(true);
-
-                $("#Label1", row).html(customer.Name);
-                $("#LinkEdit", row).html(customer.Id);
-                $("#LinkEdit").CommandArgument = customer.Id;
-
-                $("[id$=gvCustomers]").append(row);
-            }
-            /*
-            customers.each(function () {
-            var customer = $(this);
-            var row = $("[id$=gvCustomers] tr").eq(0).clone(true);
-            $(".name", row).html(customer.find("ContactName").text());
-            $(".city", row).html(customer.find("City").text());
-            $(".postal", row).html(customer.find("PostalCode").text());
-            $(".country", row).html(customer.find("Country").text());
-            $("[id$=gvCustomers]").append(row);
-            });
-            */
-
-            //Hide Loader
-            $("#loader").hide();
-        }
     </script>
 </body>
 </html>

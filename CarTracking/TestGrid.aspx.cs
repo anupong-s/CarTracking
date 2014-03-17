@@ -13,6 +13,20 @@ namespace CarTracking
     {
         public static int PageCount { get { return Datas().Count; } }
 
+        private int PageSize
+        {
+            get
+            {
+                return string.IsNullOrEmpty(hdnPageSize.Value)
+                    ? 0
+                    : Convert.ToInt32(hdnPageSize.Value);
+            }
+            set
+            {
+                hdnPageSize.Value = value.ToString();
+            }
+        }
+
         public class Customer
         {
             public int Id { get; set; }
@@ -36,6 +50,8 @@ namespace CarTracking
         {
             if (!IsPostBack)
             {
+                PageSize = 10;
+                hdnScrollPos.Value = "0";
                 SessionData = Datas();
                 BindGrid();
             }
@@ -159,19 +175,14 @@ namespace CarTracking
 
         private void BindGrid()
         {
-            var pageIndex = 0;
-            var pageSize = 10;
-
-            var skip = pageIndex * pageSize;
-
-            gvCustomers.DataSource = SessionData.Skip(skip).Take(pageSize).ToList();
+            gvCustomers.DataSource = SessionData.Skip(0).Take(PageSize).ToList();
             gvCustomers.DataBind();
         }
 
         protected void GridView1_RowEditing(object sender, GridViewEditEventArgs e)
         {
-            //gvCustomers.EditIndex = e.NewEditIndex;
-            //BindGrid();
+            gvCustomers.EditIndex = e.NewEditIndex;
+            BindGrid();
         }
 
         protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
@@ -199,24 +210,19 @@ namespace CarTracking
             BindGrid();
         }
 
-        [WebMethod(EnableSession = true)]
-        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static List<Customer> GetCustomers(int pageIndex)
-        {
-            var datas = (List<Customer>)HttpContext.Current.Session["Customer"];
-
-            return datas.Skip(pageIndex * 10).Take(10).ToList();
-        }
-
-        protected void Edit(object sender, CommandEventArgs e)
-        {
-
-        }
-
         protected void LinkEdit_Click(object sender, EventArgs e)
         {
             var handler = (LinkButton)sender;
             gvCustomers.EditIndex = Convert.ToInt32(handler.CommandArgument);
+            BindGrid();
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            PageSize = string.IsNullOrEmpty(hdnPageIndex.Value)
+                            ? 0
+                            : (Convert.ToInt32(hdnPageIndex.Value) + 1) * 10;
+
             BindGrid();
         }
     }
