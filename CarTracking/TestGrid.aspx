@@ -27,7 +27,6 @@
                             Text="<%# Container.DataItemIndex %>" OnClick="LinkEdit_Click" CommandName="Edit"></asp:LinkButton>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:CommandField HeaderText="Action" ShowDeleteButton="True" ShowEditButton="True" />
             </Columns>
         </asp:GridView>
     </div>
@@ -90,6 +89,7 @@
 
                 $("#Label1", row).html(customer.Name);
                 $("#LinkEdit", row).html(customer.Id);
+                $("#LinkEdit").CommandArgument = customer.Id;
 
                 $("[id$=gvCustomers]").append(row);
             }
