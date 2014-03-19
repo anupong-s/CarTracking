@@ -1,6 +1,7 @@
 ﻿var smarto = function () { };
 smarto.fitBoundZoomout = 1;
 smarto.markers = new Array();
+smarto.rightClick = 2;
 smarto.mapSourceEnum = {
     EcartMaps: 0,
     GoogleMaps: 1,

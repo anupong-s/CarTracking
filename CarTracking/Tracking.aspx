@@ -233,11 +233,14 @@
 
             gDrag.jq = $('#gmarker');
             gDrag.jq.mousedown(function (e) {
+                
+                /*
                 //right click
                 $(window).mousemove(function () {
                     smarto.isDragging = true;
                     $(window).unbind("mousemove");
                 });
+                */
 
                 if (e.button == 2) {
                     $("#dialog-pins").dialog("close");
@@ -247,6 +250,7 @@
                 return true;
             });
 
+            /*
             gDrag.jq.mouseup(function (e) {
                 var wasDragging = smarto.isDragging;
                 smarto.isDragging = false;
@@ -258,12 +262,7 @@
                     smarto.Pin.refresh();
                 }
             });
-
-            $("#draggablePin").draggable({
-                helper: 'clone',
-                containment: "#form1",
-                stop: function () { }
-            });
+            */
 
             $("#map").droppable({
                 drop: function (e, ui) {
@@ -360,6 +359,20 @@
                     gDrag.jq.css('cursor', 'default');
                 }
             });
+        });
+
+        $("#draggablePin").draggable({
+            helper: 'clone',
+            containment: "#form1",
+            stop: function() {}
+        });
+
+        $("#draggablePin").mousedown(function(e) {
+            if (e.button == smarto.rightClick) {
+                $("#dialog-pins").dialog("open");
+                $("#dialog-form").dialog("close");
+                return false;
+            }
         });
 
         function calculateDistanceFromPin(pinId) {
