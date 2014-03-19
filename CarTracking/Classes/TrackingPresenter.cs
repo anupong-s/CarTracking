@@ -100,9 +100,11 @@ namespace CarTracking
             using (var ctx = new CarTrackingEntities())
             {
                 var pageSize = PinPageIndex * PinPageSize;
-                var pins = ctx.Pins.OrderBy(o => o.Id).Skip(0).Take(pageSize).ToList();
+                var pins = ctx.Pins.OrderByDescending(o => o.CreatedDate)
+                              .Skip(0).Take(pageSize).ToList();
 
-                return pins.Select(pin => new PinDto(pin.Id, pin.PinName)).ToList();
+                return pins.Select(pin => new PinDto(pin.Id, pin.PinName, 
+                                    pin.Latitude, pin.Longitude)).ToList();
             }
         }
 

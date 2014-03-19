@@ -88,6 +88,7 @@
     <Content Include="hobbit\hobbit-min.js" />
     <Content Include="hobbit\hobbit1.js" />
     <Content Include="hobbit\Hook.js" />
+    <Content Include="hobbit\images\loadingGetPin.gif" />
     <Content Include="hobbit\images\blank.png" />
     <Content Include="hobbit\images\icoclose.png" />
     <Content Include="hobbit\images\icosearch.png" />

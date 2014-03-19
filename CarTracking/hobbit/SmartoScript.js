@@ -18,7 +18,6 @@ var gDrag = {
 
 smarto.isOpenPopup = false;
 smarto.pinId = 0;
-smarto.isDragging = false;
 smarto.freezeMap = false; //ยกเลิกการ set center เวลา tracking
 smarto.route = {
     geometry: new Array(),
@@ -79,12 +78,19 @@ smarto.vehicles = {
             }
 
             this._markers = new Array();
+            smarto.Pin.wasDropPin = false;
+
+            $("#pVehicleDetail").text('complete');
         }
     }
 };
 smarto.Pin = {
-    refresh: function () {
+    wasDropPin: false,
+    getAllPins: function () {
         __doPostBack('BtnRefreshGridViewPin', '');
+    },
+    clearPins: function () {
+        __doPostBack('BtnClearGridViewPin', '');
     }
 };
 

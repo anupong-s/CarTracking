@@ -97,13 +97,13 @@
     </asp:ScriptManager>
     <div id="map_contain">
         <div id='shelf'>
-            <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 10000;"
+            <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 999;"
                 title="Drag on map" src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
         </div>
         <div id="vehicle-contain" style="float: left">
             <select id="e1" runat="server">
             </select>
-            <p style="font-size: 14px">
+            <p id="pVehicleDetail" style="font-size: 14px">
                 Vehicle Detail</p>
             <input type="button" id="vehicle-refresh" value="refresh" onclick="calculateDistanceFromPin(smarto.pinId);" />
             <table id="vehicleDetail" class="ui-widget ui-widget-content">
@@ -125,7 +125,8 @@
         </div>
         <div style="clear: both">
         </div>
-        <input type="button" id="getVehiclesId" value="Get Vehicles" onclick="getVehicle();" />
+        <input type="button" id="getVehiclesId" value="Get Vehicles" style="display: none;"
+            onclick="getVehicle();" />
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
@@ -138,13 +139,13 @@
             </fieldset>
         </div>
         <div id="dialog-pins" style="z-index: 30000">
-            <div id="dvGrid" style="width: 300px; height: 192px; overflow: auto;">
-                <asp:UpdatePanel ID="udpGridViewPin" EnableViewState="True" runat="server" UpdateMode="Conditional">
+            <div id="dvGrid" style="width: 300px; height: 200px; overflow: auto;">
+                <asp:UpdatePanel ID="udpGridViewPin" runat="server" UpdateMode="Conditional">
                     <ContentTemplate>
                         <asp:GridView ID="GridViewPin" runat="server" Width="100%" AutoGenerateColumns="False"
                             OnRowCancelingEdit="GridViewPin_RowCancelingEdit" OnRowDeleting="GridViewPin_RowDeleting"
                             OnRowEditing="GridViewPin_RowEditing" OnRowUpdating="GridViewPin_RowUpdating"
-                            ShowHeader="False" DataKeyNames="Id">
+                            ShowHeader="False" DataKeyNames="Id" OnRowDataBound="GridViewPin_RowDataBound">
                             <Columns>
                                 <asp:TemplateField>
                                     <EditItemTemplate>
@@ -152,7 +153,7 @@
                                             Text='<%# Eval("Name") %>'></asp:TextBox>
                                     </EditItemTemplate>
                                     <ItemTemplate>
-                                        <asp:Label ID="LblPinName" ClientIDMode="Static" runat="server" Text='<%# Eval("Name") %>'></asp:Label>
+                                        <asp:LinkButton ID="LbtnName" runat="server" OnClientClick="alert('x');" Text='<%# Eval("Name") %>'></asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:CommandField ShowDeleteButton="True" ShowEditButton="True" />
@@ -161,27 +162,108 @@
                         <asp:Button ID="BtnRefreshGridViewPin" Style="display: none" runat="server" OnClick="BtnRefreshGridViewPin_Click" />
                         <asp:Button ID="BtnClearGridViewPin" Style="display: none" runat="server" OnClick="BtnClearGridViewPin_Click" />
                     </ContentTemplate>
+                    <Triggers>
+                        <asp:AsyncPostBackTrigger ControlID="BtnRefreshGridViewPin" EventName="Click" />
+                        <asp:AsyncPostBackTrigger ControlID="BtnClearGridViewPin" EventName="Click" />
+                    </Triggers>
                 </asp:UpdatePanel>
+                <div style="height: 20px;">
+                </div>
+                <asp:HiddenField ID="hdnScrollPos" EnableViewState="True" runat="server" />
+                <asp:HiddenField ID="hdnPageIndex" EnableViewState="True" runat="server" />
+                <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
             </div>
         </div>
         <div id="dialog-selected-pin" title="" style="z-index: 30000">
         </div>
     </div>
-    <asp:HiddenField ID="hdnScrollPos" EnableViewState="True" runat="server" />
-    <asp:HiddenField ID="hdnPageIndex" EnableViewState="True" runat="server" />
-    <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
     <script type="text/javascript">
         var myIconUrl = '<%= MyIcon %>';
         var pageIndex = 0;
         var pageCount = 0;
         var scrollPos = $("#hdnScrollPos");
         var hdPageIndex = $("#hdnPageIndex");
+        var dialogPin = $("#dialog-pins");
+        var dialogSavePin = $("#dialog-form");
+        var dvGrid = $("#dvGrid");
+        var dvMap = $("#map");
+        var draggablePin = $("#draggablePin");
 
         map = H.map("map");
 
-        $("#dialog-form").dialog({
+        dvMap.addPin = function(lat, lng) {
+
+                smarto.Pin.wasDropPin = true;
+                var pin = L.marker([lat, lng], { draggable: false });
+                pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
+                var obj = pin.addTo(map);
+                smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
+
+                hidePin();
+
+                pin.addEventListener('click', function () {
+                    alert('left click');
+                });
+
+                pin.addEventListener('mouseout', function () {
+                    pin.closePopup();
+                    smarto.isOpenPopup = false;
+                });
+
+                pin.addEventListener('mouseover', function () {
+                    if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
+
+                        if (!smarto.isOpenPopup) {
+                            smarto.isOpenPopup = true;
+                            pin.openPopup();
+                        }
+
+                        gDrag.jq.mouseover(function () {
+                            if (!smarto.isOpenPopup) {
+                                smarto.isOpenPopup = true;
+                                pin.openPopup();
+                            }
+                        });
+
+                        gDrag.jq.mouseout(function () {
+                            pin.closePopup();
+                            smarto.isOpenPopup = false;
+                        });
+
+                        gDrag.item = this;
+                        gDrag.jq.offset({
+                            top: gDrag.y - 10,
+                            left: gDrag.x - 10
+                        });
+
+                        gDrag.jq.css('cursor', 'move');
+                    }
+                });
+
+                smarto.route.remove(map);
+                calculateDistanceFromPin(smarto.pinId);
+            };
+
+        dvMap.droppable({
+            drop: function(e, ui) {
+                if (!canDropable(ui.draggable.attr("id"))) {
+                    return false;
+                }
+
+                //ลาก pin มาวางแล้วทำการสร้าง marker
+                var leftWidth = $("#vehicle-contain").width();
+                var pinHeight = 25;
+
+                var point = L.point(e.pageX - leftWidth, e.pageY + pinHeight);
+                var ll = map.containerPointToLatLng(point);
+
+                dvMap.addPin(ll.lat, ll.lng);
+            }
+        });
+
+        dialogSavePin.dialog({
             autoOpen: false,
-            height: 120,
+            height: 150,
             width: 350,
             modal: false,
             resizable: false,
@@ -209,7 +291,7 @@
             }
         });
 
-        $("#dialog-pins").dialog({
+        dialogPin.dialog({
             autoOpen: false,
             height: 250,
             width: 320,
@@ -217,9 +299,24 @@
             resizable: false,
             draggable: false,
             closeOnEscape: true,
-            close: function () { __doPostBack('BtnClearGridViewPin',''); },                        
+            close: function() {
+                hdPageIndex.val(0);
+                scrollPos.val(0);
+                pageIndex = 0;
+                smarto.Pin.clearPins();
+            },                        
         }).parent().appendTo($("form:first"));
 
+        dialogPin.Pin = {            
+            closePopup: function() {
+                dialogPin.dialog("close");
+            },
+            addPin: function(lat, lng) {                
+                dvMap.addPin(lat, lng);
+                this.closePopup();
+            }
+        };
+        
         var vehicleSelect = $("#e1");
         vehicleSelect.select2({ width: "80%" });
         vehicleSelect.click(function () {
@@ -231,104 +328,23 @@
         $(document).ready(function () {
             document.oncontextmenu = function () { return false; };
 
-            gDrag.jq = $('#gmarker');
-            gDrag.jq.mousedown(function (e) {
-                
-                /*
-                //right click
-                $(window).mousemove(function () {
-                    smarto.isDragging = true;
-                    $(window).unbind("mousemove");
-                });
-                */
+            getVehicle(); //Get vehicle
 
-                if (e.button == 2) {
-                    $("#dialog-pins").dialog("close");
-                    $("#dialog-form").dialog("open");
+            gDrag.jq = $('#gmarker');
+            gDrag.jq.mousedown(function (e) {                
+                if (e.button == smarto.rightClick) {
+                    dialogPin.dialog("close");
+                    dialogSavePin.dialog("open");
                     return false;
                 }
                 return true;
             });
 
-            /*
-            gDrag.jq.mouseup(function (e) {
-                var wasDragging = smarto.isDragging;
-                smarto.isDragging = false;
-                $(window).unbind("mousemove");
-                if (!wasDragging && e.button != 2) {
-                    $("#dialog-pins").dialog("open");
-                    $(".ui-widget-overlay").removeClass('dialog-index').addClass('dialog-index');
-                    pageCount = '<%=PinCount %>';
-                    smarto.Pin.refresh();
-                }
-            });
-            */
-
-            $("#map").droppable({
-                drop: function (e, ui) {
-                    if (!canDropable(ui.draggable.attr("id"))) { return false; }
-
-                    //ลาก pin มาวางแล้วทำการสร้าง marker
-
-                    var leftWidth = $("#vehicle-contain").width();
-                    var pinHeight = 25;
-
-                    var point = L.point(e.pageX - leftWidth, e.pageY + pinHeight);
-                    var ll = map.containerPointToLatLng(point);
-                    var pin = L.marker([ll.lat, ll.lng], { draggable: false });
-                    pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
-                    var obj = pin.addTo(map);
-                    smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
-
-                    hidePin();
-
-                    pin.addEventListener('click', function () {
-                        alert('left click');
-                    });
-
-                    pin.addEventListener('mouseout', function () {
-                        pin.closePopup();
-                        smarto.isOpenPopup = false;
-                    });
-
-                    pin.addEventListener('mouseover', function () {
-                        if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
-
-                            if (!smarto.isOpenPopup) {
-                                smarto.isOpenPopup = true;
-                                pin.openPopup();
-                            }
-
-                            gDrag.jq.mouseover(function () {
-                                if (!smarto.isOpenPopup) {
-                                    smarto.isOpenPopup = true;
-                                    pin.openPopup();
-                                }
-                            });
-
-                            gDrag.jq.mouseout(function () {
-                                pin.closePopup();
-                                smarto.isOpenPopup = false;
-                            });
-
-                            gDrag.item = this;
-                            gDrag.jq.offset({
-                                top: gDrag.y - 10,
-                                left: gDrag.x - 10
-                            });
-
-                            gDrag.jq.css('cursor', 'move');
-                        }
-                    });
-
-                    smarto.route.remove(map);
-                    calculateDistanceFromPin(smarto.pinId);
-                }
-            });
-
             gDrag.jq.draggable({
                 start: function (event, ui) {
-                    if (gDrag.item._icon == null) { return false; }
+                    if (gDrag.item._icon == null || smarto.Pin.wasDropPin) {                        
+                         return false;
+                    }
 
                     gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
                     removeMarkerById(gDrag.item._leaflet_id);
@@ -361,22 +377,28 @@
             });
         });
 
-        $("#draggablePin").draggable({
+        draggablePin.draggable({
             helper: 'clone',
             containment: "#form1",
             stop: function() {}
         });
 
-        $("#draggablePin").mousedown(function(e) {
+        draggablePin.mousedown(function(e) {
             if (e.button == smarto.rightClick) {
-                $("#dialog-pins").dialog("open");
-                $("#dialog-form").dialog("close");
+                dialogPin.dialog("open");
+                dialogSavePin.dialog("close");
+                $(".ui-widget-overlay").removeClass('dialog-index').addClass('dialog-index');
+                pageCount = '<%=PinCount %>';
+                smarto.Pin.getAllPins();
                 return false;
             }
         });
 
         function calculateDistanceFromPin(pinId) {
-            if (pinId <= 0) { return; }
+            if (pinId <= 0 || smarto.markers.length <= 0) {
+                smarto.Pin.wasDropPin = false;
+                return;
+            }
 
             var pin = map._layers[pinId];
             var ll = pin._latlng;
@@ -504,32 +526,23 @@
                 }
             });
         }
-
-        $("#dvGrid").on("scroll", function (e) {
+        
+        dvGrid.on("scroll", function (e) {
             var $o = $(e.currentTarget);
-            if ($o[0].scrollHeight - $o.scrollTop() <= $o.outerHeight()) {
-                scrollPos.val($o.scrollTop());
-                GetRecords();
+            if ($o[0].scrollHeight - $o.scrollTop() <= $o.outerHeight()) {                
+                scrollPos.val($o.scrollTop());                                
+                dvGrid.getRecords();
             }
         });
 
-        function GetRecords() {
+        dvGrid.getRecords = function() {
             pageIndex++;
-            if (pageIndex == 1 || pageIndex <= pageCount) {
-
-                //Show Loader
-                if ($("[id$=gvCustomers] .loader").length == 0) {
-                    var row = $("[id$=gvCustomers] tr").eq(0).clone(true);
-                    row.addClass("loader");
-                    row.children().remove();
-                    row.append('<td colspan = "999" style = "background-color:white"><img id="loader" alt="" src="103.gif" /></td>');
-                    $("[id$=gvCustomers]").append(row);
-                }
-
+            if (pageIndex == 1 || pageIndex <= pageCount) {            
                 hdPageIndex.val(pageIndex);
-                smarto.Pin.refresh();
+                smarto.Pin.getAllPins();                
             }
-        }
+        };
+
     </script>
     </form>
 </body>

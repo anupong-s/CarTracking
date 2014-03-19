@@ -41,10 +41,10 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="PinName" Type="varchar" MaxLength="30" />
-          <Property Name="Latitude" Type="decimal" Scale="7" />
-          <Property Name="Longitude" Type="decimal" Scale="7" />
-          <Property Name="CreatedDate" Type="datetime" />
+          <Property Name="PinName" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="Latitude" Type="decimal" Nullable="false" Scale="7" />
+          <Property Name="Longitude" Type="decimal" Nullable="false" Scale="7" />
+          <Property Name="CreatedDate" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="Vehicles">
           <Key>
@@ -158,10 +158,10 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="PinName" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Type="Decimal" Name="Latitude" Precision="18" Scale="7" />
-          <Property Type="Decimal" Name="Longitude" Precision="18" Scale="7" />
-          <Property Type="DateTime" Name="CreatedDate" />
+          <Property Type="String" Name="PinName" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Type="Decimal" Name="Latitude" Precision="18" Scale="7" Nullable="false" />
+          <Property Type="Decimal" Name="Longitude" Precision="18" Scale="7" Nullable="false" />
+          <Property Type="DateTime" Name="CreatedDate" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>

@@ -37,7 +37,8 @@ namespace CarTracking
         private void InitParameter()
         {
             Presenter = new TrackingPresenter();
-            hdnPageIndex.Value = "1";
+            Presenter.PinPageIndex = 0;
+            hdnPageIndex.Value = "0";
             hdnScrollPos.Value = "0";
             hdnPageSize.Value = "0";
         }
@@ -118,6 +119,11 @@ namespace CarTracking
 
         protected void BtnClearGridViewPin_Click(object sender, EventArgs e)
         {
+            Presenter.PinPageIndex = 0;
+            hdnPageIndex.Value = "0";
+            hdnScrollPos.Value = "0";
+            hdnPageSize.Value = "0";
+
             GridViewPin.DataSource = null;
             GridViewPin.DataBind();
             udpGridViewPin.Update();
@@ -129,6 +135,16 @@ namespace CarTracking
             GridViewPin.DataSource = pin;
             GridViewPin.DataBind();
             udpGridViewPin.Update();
+        }
+
+        protected void GridViewPin_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                var pin = (PinDto)e.Row.DataItem;
+                var btnName = (LinkButton)e.Row.FindControl("LbtnName");
+                btnName.OnClientClick = string.Format("dialogPin.Pin.addPin('{0}','{1}');", pin.Latitude, pin.Longitude);
+            }
         }
 
     }

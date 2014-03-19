@@ -518,10 +518,18 @@ namespace CarTracking.Model
         /// Create a new Pin object.
         /// </summary>
         /// <param name="id">Initial value of the Id property.</param>
-        public static Pin CreatePin(global::System.Int32 id)
+        /// <param name="pinName">Initial value of the PinName property.</param>
+        /// <param name="latitude">Initial value of the Latitude property.</param>
+        /// <param name="longitude">Initial value of the Longitude property.</param>
+        /// <param name="createdDate">Initial value of the CreatedDate property.</param>
+        public static Pin CreatePin(global::System.Int32 id, global::System.String pinName, global::System.Decimal latitude, global::System.Decimal longitude, global::System.DateTime createdDate)
         {
             Pin pin = new Pin();
             pin.Id = id;
+            pin.PinName = pinName;
+            pin.Latitude = latitude;
+            pin.Longitude = longitude;
+            pin.CreatedDate = createdDate;
             return pin;
         }
 
@@ -558,7 +566,7 @@ namespace CarTracking.Model
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
         public global::System.String PinName
         {
@@ -570,7 +578,7 @@ namespace CarTracking.Model
             {
                 OnPinNameChanging(value);
                 ReportPropertyChanging("PinName");
-                _PinName = StructuralObject.SetValidValue(value, true);
+                _PinName = StructuralObject.SetValidValue(value, false);
                 ReportPropertyChanged("PinName");
                 OnPinNameChanged();
             }
@@ -582,9 +590,9 @@ namespace CarTracking.Model
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Decimal> Latitude
+        public global::System.Decimal Latitude
         {
             get
             {
@@ -599,16 +607,16 @@ namespace CarTracking.Model
                 OnLatitudeChanged();
             }
         }
-        private Nullable<global::System.Decimal> _Latitude;
-        partial void OnLatitudeChanging(Nullable<global::System.Decimal> value);
+        private global::System.Decimal _Latitude;
+        partial void OnLatitudeChanging(global::System.Decimal value);
         partial void OnLatitudeChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Decimal> Longitude
+        public global::System.Decimal Longitude
         {
             get
             {
@@ -623,16 +631,16 @@ namespace CarTracking.Model
                 OnLongitudeChanged();
             }
         }
-        private Nullable<global::System.Decimal> _Longitude;
-        partial void OnLongitudeChanging(Nullable<global::System.Decimal> value);
+        private global::System.Decimal _Longitude;
+        partial void OnLongitudeChanging(global::System.Decimal value);
         partial void OnLongitudeChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.DateTime> CreatedDate
+        public global::System.DateTime CreatedDate
         {
             get
             {
@@ -647,8 +655,8 @@ namespace CarTracking.Model
                 OnCreatedDateChanged();
             }
         }
-        private Nullable<global::System.DateTime> _CreatedDate;
-        partial void OnCreatedDateChanging(Nullable<global::System.DateTime> value);
+        private global::System.DateTime _CreatedDate;
+        partial void OnCreatedDateChanging(global::System.DateTime value);
         partial void OnCreatedDateChanged();
 
         #endregion
