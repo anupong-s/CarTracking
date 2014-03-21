@@ -12,9 +12,11 @@ namespace CarTracking
         public int PinPageSize { get; set; }
         public int PinCount { get; set; }
 
+        private int GeopointId { get; set; }
+
         public TrackingPresenter()
         {
-            PinPageIndex = 1;
+            PinPageIndex = 0;
             PinPageSize = 10;
         }
 
@@ -103,7 +105,7 @@ namespace CarTracking
                 var pins = ctx.Pins.OrderByDescending(o => o.CreatedDate)
                               .Skip(0).Take(pageSize).ToList();
 
-                return pins.Select(pin => new PinDto(pin.Id, pin.PinName, 
+                return pins.Select(pin => new PinDto(pin.Id, pin.PinName,
                                     pin.Latitude, pin.Longitude)).ToList();
             }
         }
@@ -118,6 +120,33 @@ namespace CarTracking
             }
         }
 
+        public void DeletePinById(int pinId)
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                var pin = ctx.Pins.First(p => p.Id == pinId);
+                ctx.DeleteObject(pin);
+                ctx.SaveChanges();
+            }
+        }
 
+        public GeoPointInfo GetLastKnowLocation(int id)
+        {
+            GeopointId += 1;
+            using (var ctx = new CarTrackingEntities())
+            {
+                var point = ctx.GeoPoints.OrderBy(s => s.Id)
+                               .FirstOrDefault(s => s.DeviceId == id && s.Id == GeopointId);
+
+                if (point == null)
+                {
+                    GeopointId = 1;
+                    point = ctx.GeoPoints.OrderBy(s => s.Id)
+                               .FirstOrDefault(s => s.DeviceId == id && s.Id == GeopointId);
+                }
+
+                return new GeoPointInfo(point);
+            }
+        }
     }
 }

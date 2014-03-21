@@ -10,7 +10,8 @@
 			styles: [
 				{color: 'black', opacity: 0.15, weight: 7},
 				{color: 'white', opacity: 0.8, weight: 4},
-				{color: 'orange', opacity: 1, weight: 2}
+				{color: '#3ebcd3', opacity: 0.5, weight: 7}
+				//{color: 'orange', opacity: 1, weight: 2}
 			],
 			addWaypoints: true
 		},
@@ -33,13 +34,26 @@
 
 			this._map = map;
 			this._layers = [];
+
+		    //var pin = map._layers[smarto.pinId];
+		    pl = L.polyline(geom, { color: '#3ebcd3', opacity: 0.5, weight: 7 });
+            //var marker2 = L.marker([this._route.waypoints[1][0], this._route.waypoints[1][1]]);
+		    var marker1 = this._route.waypoints[0];
+		    var marker2 = this._route.waypoints[1];
+
+		    this.lg = L.layerGroup([marker1, marker2]).addLayer(pl).addTo(map);
+		    this._layers.push(pl);
+
+		    /*
 			for (i = 0; i < this.options.styles.length; i++) {
 				pl = L.polyline(geom, this.options.styles[i]).addTo(map);
 				if (this.options.addWaypoints) {
 					pl.on('mousedown', this._onLineTouched, this);
 				}
 				this._layers.push(pl);
-			}
+			}*/
+
+
 		},
 
 		onRemove: function(map) {
@@ -47,7 +61,7 @@
 			for (i = 0; i < this._layers.length; i++) {
 				map.removeLayer(this._layers[i]);
 			}
-
+            
 			delete this._map;
 		},
 
@@ -60,7 +74,8 @@
 			    indices = [],
 			    i;
 			for (i = 0; i < wps.length; i++) {
-				indices.push(this._findClosestRoutePoint(L.latLng(wps[i])));
+				//indices.push(this._findClosestRoutePoint(L.latLng(wps[i])));
+                indices.push(this._findClosestRoutePoint(wps[i]._latlng));
 			}
 
 			return indices;

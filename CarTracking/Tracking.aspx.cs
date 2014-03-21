@@ -30,22 +30,22 @@ namespace CarTracking
             if (!IsPostBack)
             {
                 InitParameter();
-                RetrieveVehicles();
+                BindVehicles();
             }
         }
 
         private void InitParameter()
         {
             Presenter = new TrackingPresenter();
-            Presenter.PinPageIndex = 0;
             hdnPageIndex.Value = "0";
             hdnScrollPos.Value = "0";
             hdnPageSize.Value = "0";
         }
 
-        private void RetrieveVehicles()
+        private void BindVehicles()
         {
             var vehicles = Presenter.GetVehicles();
+            vehicles.Insert(0, new VehicleDto { Lp = "Select Vehicle" });
             e1.DataSource = vehicles;
             e1.DataTextField = "Lp";
             e1.DataValueField = "Id";
@@ -80,6 +80,14 @@ namespace CarTracking
             presenter.SavePin(pinName, lat, lng);
         }
 
+        [WebMethod(EnableSession = true)]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static GeoPointInfo GetLastKnowLocation(int id)
+        {
+            var presenter = (TrackingPresenter)HttpContext.Current.Session["TrackingPresenter"];
+            return presenter.GetLastKnowLocation(id);
+        }
+
         #endregion
 
         protected void GridViewPin_RowEditing(object sender, GridViewEditEventArgs e)
@@ -90,7 +98,12 @@ namespace CarTracking
 
         protected void GridViewPin_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
+            var key = GridViewPin.DataKeys[e.RowIndex];
+            var id = (int)key.Value;
+            Presenter.DeletePinById(id);
 
+            GridViewPin.EditIndex = -1;
+            BindGrid();
         }
 
         protected void GridViewPin_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
@@ -142,8 +155,12 @@ namespace CarTracking
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 var pin = (PinDto)e.Row.DataItem;
-                var btnName = (LinkButton)e.Row.FindControl("LbtnName");
-                btnName.OnClientClick = string.Format("dialogPin.Pin.addPin('{0}','{1}');", pin.Latitude, pin.Longitude);
+                var lBtnName = (LinkButton)e.Row.FindControl("LbtnName");
+                if (lBtnName != null)
+                {
+                    lBtnName.OnClientClick = string.Format("dialogPin.Pin.addPin('{0}','{1}');",
+                                                pin.Latitude, pin.Longitude);
+                }
             }
         }
 

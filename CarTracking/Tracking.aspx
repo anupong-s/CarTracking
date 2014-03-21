@@ -15,6 +15,7 @@
         rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="hobbit/css/hobbit.css">
     <link href="Scripts/select2.css" rel="stylesheet" type="text/css" />
+    <link href="hobbit/css/smarto.css" rel="stylesheet" type="text/css" />
     <script src="hobbit/hobbit-config.js" type="text/javascript"></script>
     <script src="hobbit/hobbit-min.js" type="text/javascript"></script>
     <%--<script src="hobbit/hobbit1.js" type="text/javascript"></script>--%>
@@ -29,52 +30,6 @@
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
     <script src="Scripts/select2.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <style type="text/css">
-        html, body, #form1, #map_contain
-        {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: "Helvetica Neue" , Helvetica, Arial, sans-serif;
-            font-size: 12px;
-        }
-        #map
-        {
-            width: 80%;
-            height: 80%;
-            float: left;
-        }
-        #shelf
-        {
-            top: 200px;
-            left: 10px;
-        }
-        #draggablePin
-        {
-            position: absolute;
-            top: 100px;
-            left: 230px;
-        }
-        
-        .ui-dialog
-        {
-            z-index: 1002 !important;
-        }
-        .ui-dialog .ui-state-error
-        {
-            padding: .3em;
-        }
-        #vehicleDetail tr:hover
-        {
-            background-color: #3fbdd6;
-        }
-        
-        .dialog-index
-        {
-            z-index: 1001 !important;
-        }
-    </style>
     <!-- Map Stylesheet -->
     <script type="text/javascript">
         //Object สำหรับเก็บค่า marker และ div สำหรับการลาก marker ออกจาก Map        
@@ -96,30 +51,43 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server">
     </asp:ScriptManager>
     <div id="map_contain">
-        <div id='shelf'>
-            <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 999;"
-                title="Drag on map" src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
-        </div>
-        <div id="vehicle-contain" style="float: left">
+        <div id="vehicle-contain" style="float: left; width: 16%">
             <select id="e1" runat="server">
             </select>
-            <p id="pVehicleDetail" style="font-size: 14px">
-                Vehicle Detail</p>
-            <input type="button" id="vehicle-refresh" value="refresh" onclick="calculateDistanceFromPin(smarto.pinId);" />
-            <table id="vehicleDetail" class="ui-widget ui-widget-content">
-                <thead>
-                    <tr class="ui-widget-header">
-                        <th>
-                            License Plate
-                        </th>
-                        <th>
-                            Distance (Km)
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div class="customPeriod">
+                <asp:RadioButtonList ID="RadioButtonList1" runat="server">
+                    <asp:ListItem Value="1">Current journey</asp:ListItem>
+                    <asp:ListItem Value="2">Last journey</asp:ListItem>
+                    <asp:ListItem Value="3">Last 12 hours</asp:ListItem>
+                    <asp:ListItem Value="4">Last 24 hours</asp:ListItem>
+                    <asp:ListItem Value="5">Yesterday</asp:ListItem>
+                    <asp:ListItem Value="6">Custom period</asp:ListItem>
+                </asp:RadioButtonList>
+            </div>
+            <div align="center">
+                <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 999;"
+                    title="Drag on map" src='http://www.teawamutu.co.nz/town/2/images/icons/pegman-reset.png' />
+            </div>
+            <div id="dvVehicleDetail" style="display: none">
+                <div style="height: 30px">
+                    <input type="button" id="vehicle-refresh" value="refresh" onclick="smarto.vehicles.calculateDistanceFromPin(smarto.pinId);" />
+                </div>
+                <table id="vehicleDetail" class="ui-widget ui-widget-content">
+                    <thead>
+                        <tr class="ui-widget-header">
+                            <th>
+                                License Plate
+                            </th>
+                            <th>
+                                Distance (Km)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <input type="button" id="btnRealtime" value="Realtime Tracking" onclick="smarto.vehicles.realTimeTracking()" />
         </div>
         <div id="map">
         </div>
@@ -131,12 +99,15 @@
             background-repeat: round">
         </div>
         <div id="dialog-form" title="Save Your Pin" style="z-index: 30000">
-            <fieldset>
-                <label for="name">
-                    Name
-                </label>
-                <input type="text" name="name" id="pin-name" class="text ui-widget-content ui-corner-all" />
-            </fieldset>
+            <label for="name">
+                Name
+            </label>
+            <asp:TextBox ID="pinName" runat="server" CssClass="text ui-widget-content ui-corner-all"></asp:TextBox>
+            <p>
+                <asp:RequiredFieldValidator ID="ReqPinName" runat="server" ControlToValidate="pinName"
+                    Display="Dynamic" ErrorMessage="Missing pin name" ValidationGroup="PinGrp">         
+                </asp:RequiredFieldValidator>
+            </p>
         </div>
         <div id="dialog-pins" style="z-index: 30000">
             <div id="dvGrid" style="width: 300px; height: 200px; overflow: auto;">
@@ -188,29 +159,29 @@
         var dvGrid = $("#dvGrid");
         var dvMap = $("#map");
         var draggablePin = $("#draggablePin");
+        var btnRefresh = $("#vehicle-refresh");
+        var vehicleSelect = $("#e1");
+        var dvVehicleDetail = $("#dvVehicleDetail");
+        gDrag.jq = $('#gmarker');
 
         map = H.map("map");
-
+        
         dvMap.addPin = function(lat, lng) {
 
-                smarto.Pin.wasDropPin = true;
-                var pin = L.marker([lat, lng], { draggable: false });
-                pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
-                var obj = pin.addTo(map);
-                smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
+            smarto.Pin.wasDropPin = true;
+            var pin = L.marker([lat, lng], { draggable: false });
+            pin.bindPopup('<div><p>Drag to re-Route</p><p>Drag off the map to remove</p><p>Right Click to save Location</p></div>'); //ใส่ html ไว้สำหรับ Popup
+            var obj = pin.addTo(map);
+            smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
 
-                hidePin();
+            hidePin();
 
-                pin.addEventListener('click', function () {
-                    alert('left click');
-                });
+            pin.addEventListener('mouseout', function () {
+                pin.closePopup();
+                smarto.isOpenPopup = false;
+            });
 
-                pin.addEventListener('mouseout', function () {
-                    pin.closePopup();
-                    smarto.isOpenPopup = false;
-                });
-
-                pin.addEventListener('mouseover', function () {
+            pin.addEventListener('mouseover', function () {
                     if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
 
                         if (!smarto.isOpenPopup) {
@@ -240,9 +211,10 @@
                     }
                 });
 
-                smarto.route.remove(map);
-                calculateDistanceFromPin(smarto.pinId);
-            };
+            smarto.route.remove(map);
+            smarto.vehicles.calculateDistanceFromPin(smarto.pinId);
+            smarto.vehicles.showDetail(dvVehicleDetail);
+        };
 
         dvMap.droppable({
             drop: function(e, ui) {
@@ -263,37 +235,51 @@
 
         dialogSavePin.dialog({
             autoOpen: false,
-            height: 150,
+            height: 190,
             width: 350,
             modal: false,
             resizable: false,
+            close: function() {
+                $("#pinName").val('');
+            },
             buttons: {
                 "Save": function () {
-                    var pinName = $("#pin-name").val();
-                    var marker = map._layers[smarto.pinId];
-                    var latLng = marker._latlng;
 
-                    $.ajax({
-                        type: "POST",
-                        url: "Tracking.aspx/SavePin",
-                        data: "{ 'pinName': '" + pinName + "','lat': '" + latLng.lat + "','lng': '" + latLng.lng + "'}",
-                        contentType: "application/json",
-                        success: function () {
-                            alert('Successfully');
-                            $("#dialog-form").dialog("close");
-                        },
-                        error: function (xhr) {
-                            var err = eval("(" + xhr.responseText + ")");
-                            alert(err.Message);
+                    if (Page_ClientValidate('PinGrp')) {
+
+                        var pinName = $("#pinName");
+                        var marker = map._layers[smarto.pinId];
+                        var latLng = marker._latlng;
+
+                        var name = pinName.val();
+                        if (name.length < 3 || name.length > 30) {
+                            alert('Length of pin name mush be between 3 and 30');
+                            return false;
                         }
-                    });
+
+                        $.ajax({
+                            type: "POST",
+                            url: "Tracking.aspx/SavePin",
+                            data: "{ 'pinName': '" + pinName.val() + "','lat': '" + latLng.lat + "','lng': '" + latLng.lng + "'}",
+                            contentType: "application/json",
+                            success: function() {
+                                alert('Successfully');
+                                $("#dialog-form").dialog("close");
+                                pinName.val('');
+                            },
+                            error: function(xhr) {
+                                var err = eval("(" + xhr.responseText + ")");
+                                alert(err.Message);
+                            }
+                        });
+                    }
                 }
             }
         });
 
         dialogPin.dialog({
             autoOpen: false,
-            height: 250,
+            height: 270,
             width: 320,
             modal: true,
             resizable: false,
@@ -316,21 +302,30 @@
                 this.closePopup();
             }
         };
+
+        vehicleSelect.select2({ width: "80%" });    
         
-        var vehicleSelect = $("#e1");
-        vehicleSelect.select2({ width: "80%" });
         vehicleSelect.click(function () {
-            var data = $("#e1").select2("data");
+            var data = $(this).select2("data");
             delete data.element;
-            alert("Selected data is: " + data.text);
+            if (data.id != "0") {
+                btnRefresh.hide();                    
+                smarto.vehicles.selectVehicleId(data.id);
+            } else {
+                btnRefresh.show();
+            }            
         });
-
+        
         $(document).ready(function () {
-            document.oncontextmenu = function () { return false; };
+            
+            this.oncontextmenu = function() { return false; };
+            $(this).mousemove(function (event) {
+                gDrag.x = event.pageX;
+                gDrag.y = event.pageY;
+            });
+                  
+            smarto.vehicles.getVehicle(); //Get vehicle
 
-            getVehicle(); //Get vehicle
-
-            gDrag.jq = $('#gmarker');
             gDrag.jq.mousedown(function (e) {                
                 if (e.button == smarto.rightClick) {
                     dialogPin.dialog("close");
@@ -353,28 +348,6 @@
                     gDrag.jq.html('');
                 }
             });
-
-            $(document).mousemove(function (event) {
-                gDrag.x = event.pageX;
-                gDrag.y = event.pageY;
-            });
-
-            $("#map_contain").droppable({
-                accept: "#gmarker",
-                activeClass: "drophere",
-                hoverClass: "dropaccept",
-                drop: function (event, ui, item) {
-
-                    if (smarto.pinId == gDrag.item._leaflet_id) {
-                        removeMarkerById(gDrag.item._leaflet_id);
-                        smarto.pinId = 0;
-                        showPin();
-                        clearVehicleDetail();
-                    }
-
-                    gDrag.jq.css('cursor', 'default');
-                }
-            });
         });
 
         draggablePin.draggable({
@@ -394,32 +367,6 @@
             }
         });
 
-        function calculateDistanceFromPin(pinId) {
-            if (pinId <= 0 || smarto.markers.length <= 0) {
-                smarto.Pin.wasDropPin = false;
-                return;
-            }
-
-            var pin = map._layers[pinId];
-            var ll = pin._latlng;
-
-            for (var i = 0; i < smarto.markers.length; i++) {
-                var m = smarto.markers[i];
-                vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
-            }
-        }
-
-        function removeMarkers() {
-            for (var i = (smarto.markers.length - 1); i >= 0; i--) {
-                var id = smarto.markers[i];
-                var marker = map._layers[id];
-                if (marker || "") {
-                    map.removeLayer(marker);
-                    smarto.markers.splice(i, 1);
-                }
-            }
-        }
-
         function removeMarkerById(id) {
             var marker = map._layers[id];
             if (marker || "") {
@@ -433,100 +380,6 @@
             }
         }
 
-        function getVehicle() {
-            $.ajax({
-                type: "POST",
-                url: "Tracking.aspx/GetVehicles",
-                context: this,
-                data: '',
-                contentType: "application/json",
-                crossDomain: false,
-                success: function (a) {
-
-                    removeMarkers();
-
-                    var veh = a.d;
-                    var markers = new Array();
-                    for (var i = 0; i < veh.length; i++) {
-                        var v = veh[i];
-                        var marker = L.marker([v.Lat, v.Lng])
-                                .bindLabel(v.Lp, { noHide: true })
-                                .showLabel();
-
-                        marker.Id = v.Id;
-                        marker.Lp = v.Lp;
-                        marker.DevSn = v.DevSn;
-                        marker.addTo(map);
-
-                        smarto.markers.push(marker);
-                        markers.push(L.latLng(v.Lat, v.Lng));
-                    }
-
-                    var bounds = L.latLngBounds(markers);
-                    map.fitBounds(bounds);
-                    var maxZoom = map.getZoom();
-                    map.setZoom(maxZoom - smarto.fitBoundZoomout);
-                },
-                error: function (xhr) {
-                    var err = eval("(" + xhr.responseText + ")");
-                    alert(err.Message);
-                }
-            });
-        }
-
-        function clearVehicleDetail() {
-            $("#vehicleDetail tbody").empty();
-        }
-
-        function vehicleDistance(marker, waypoints) {
-            var directionsService = new google.maps.DirectionsService();
-
-            var start = new google.maps.LatLng(waypoints[0].lat, waypoints[0].lng);
-            var end = new google.maps.LatLng(waypoints[1].lat, waypoints[1].lng);
-
-            var request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            clearVehicleDetail();
-            directionsService.route(request, function (response, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    var value = response.routes[0].legs[0].distance.value;
-                    var text = response.routes[0].legs[0].distance.text;
-                    smarto.vehicles.addDistance(marker.Id, marker.Lp, value, text);
-                    smarto.vehicles.bindVehicleDetail();
-                }
-            });
-        }
-
-        //วาดเส้นบน map
-        function directionPath(markerId) {
-            var marker = getMarkerById(markerId);
-            var pin = getMarkerPin();
-
-            var directionsService = new google.maps.DirectionsService();
-
-            var start = new google.maps.LatLng(pin._latlng.lat, pin._latlng.lng);
-            var end = new google.maps.LatLng(marker._latlng.lat, marker._latlng.lng);
-
-            var request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            directionsService.route(request, function (response, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    var paths = response.routes[0].overview_path;
-                    smarto.route.addGeometry(paths);
-                    smarto.route.addWaypoints(pin._latlng, marker._latlng);
-                    smarto.route.routeSelected(map);
-                }
-            });
-        }
-        
         dvGrid.on("scroll", function (e) {
             var $o = $(e.currentTarget);
             if ($o[0].scrollHeight - $o.scrollTop() <= $o.outerHeight()) {                
@@ -542,6 +395,26 @@
                 smarto.Pin.getAllPins();                
             }
         };
+
+        $("#map_contain").droppable({
+                accept: "#gmarker",
+                activeClass: "drophere",
+                hoverClass: "dropaccept",
+                drop: function (event, ui, item) {
+
+                    if (smarto.pinId == gDrag.item._leaflet_id) {
+                        removeMarkerById(gDrag.item._leaflet_id);
+                        smarto.pinId = 0;
+                        smarto.vehicles.clearVehicleDetail();
+                        smarto.route.remove(map);
+                        showPin();
+                        btnRefresh.show();
+                        smarto.vehicles.hideDetail(dvVehicleDetail);
+                    }
+
+                    gDrag.jq.css('cursor', 'default');
+                }
+            });
 
     </script>
     </form>

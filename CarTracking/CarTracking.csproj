@@ -84,6 +84,7 @@
     <Content Include="hobbit\css\font\sukhumvitset-thin-webfont.svg" />
     <Content Include="hobbit\css\hobbit.css" />
     <Content Include="hobbit\css\leaflet-routing-machine.css" />
+    <Content Include="hobbit\css\smarto.css" />
     <Content Include="hobbit\hobbit-config.js" />
     <Content Include="hobbit\hobbit-min.js" />
     <Content Include="hobbit\hobbit1.js" />
