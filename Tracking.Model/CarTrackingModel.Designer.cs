@@ -18,8 +18,7 @@ using System.Runtime.Serialization;
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-[assembly: EdmRelationshipAttribute("CarTrackingModel", "FK_GeoPoints_Devices", "Device", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(CarTracking.Model.Device), "GeoPoint", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(CarTracking.Model.GeoPoint), true)]
-[assembly: EdmRelationshipAttribute("CarTrackingModel", "FK_Vehicles_Devices", "Device", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(CarTracking.Model.Device), "Vehicle", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(CarTracking.Model.Vehicle), true)]
+[assembly: EdmRelationshipAttribute("CarTrackingModel", "VehicleGeoPoint", "Vehicle", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(CarTracking.Model.Vehicle), "GeoPoint", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(CarTracking.Model.GeoPoint), true)]
 
 #endregion
 
@@ -74,22 +73,6 @@ namespace CarTracking.Model
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        public ObjectSet<Device> Devices
-        {
-            get
-            {
-                if ((_Devices == null))
-                {
-                    _Devices = base.CreateObjectSet<Device>("Devices");
-                }
-                return _Devices;
-            }
-        }
-        private ObjectSet<Device> _Devices;
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
         public ObjectSet<GeoPoint> GeoPoints
         {
             get
@@ -106,22 +89,6 @@ namespace CarTracking.Model
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        public ObjectSet<Vehicle> Vehicles
-        {
-            get
-            {
-                if ((_Vehicles == null))
-                {
-                    _Vehicles = base.CreateObjectSet<Vehicle>("Vehicles");
-                }
-                return _Vehicles;
-            }
-        }
-        private ObjectSet<Vehicle> _Vehicles;
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
         public ObjectSet<Pin> Pins
         {
             get
@@ -134,17 +101,25 @@ namespace CarTracking.Model
             }
         }
         private ObjectSet<Pin> _Pins;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<Vehicle> Vehicles
+        {
+            get
+            {
+                if ((_Vehicles == null))
+                {
+                    _Vehicles = base.CreateObjectSet<Vehicle>("Vehicles");
+                }
+                return _Vehicles;
+            }
+        }
+        private ObjectSet<Vehicle> _Vehicles;
 
         #endregion
         #region AddTo Methods
-    
-        /// <summary>
-        /// Deprecated Method for adding a new object to the Devices EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
-        /// </summary>
-        public void AddToDevices(Device device)
-        {
-            base.AddObject("Devices", device);
-        }
     
         /// <summary>
         /// Deprecated Method for adding a new object to the GeoPoints EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
@@ -155,19 +130,19 @@ namespace CarTracking.Model
         }
     
         /// <summary>
-        /// Deprecated Method for adding a new object to the Vehicles EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
-        /// </summary>
-        public void AddToVehicles(Vehicle vehicle)
-        {
-            base.AddObject("Vehicles", vehicle);
-        }
-    
-        /// <summary>
         /// Deprecated Method for adding a new object to the Pins EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
         /// </summary>
         public void AddToPins(Pin pin)
         {
             base.AddObject("Pins", pin);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the Vehicles EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToVehicles(Vehicle vehicle)
+        {
+            base.AddObject("Vehicles", vehicle);
         }
 
         #endregion
@@ -177,132 +152,6 @@ namespace CarTracking.Model
     #endregion
     
     #region Entities
-    
-    /// <summary>
-    /// No Metadata Documentation available.
-    /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="CarTrackingModel", Name="Device")]
-    [Serializable()]
-    [DataContractAttribute(IsReference=true)]
-    public partial class Device : EntityObject
-    {
-        #region Factory Method
-    
-        /// <summary>
-        /// Create a new Device object.
-        /// </summary>
-        /// <param name="deviceId">Initial value of the DeviceId property.</param>
-        public static Device CreateDevice(global::System.Int32 deviceId)
-        {
-            Device device = new Device();
-            device.DeviceId = deviceId;
-            return device;
-        }
-
-        #endregion
-        #region Primitive Properties
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
-        public global::System.Int32 DeviceId
-        {
-            get
-            {
-                return _DeviceId;
-            }
-            set
-            {
-                if (_DeviceId != value)
-                {
-                    OnDeviceIdChanging(value);
-                    ReportPropertyChanging("DeviceId");
-                    _DeviceId = StructuralObject.SetValidValue(value);
-                    ReportPropertyChanged("DeviceId");
-                    OnDeviceIdChanged();
-                }
-            }
-        }
-        private global::System.Int32 _DeviceId;
-        partial void OnDeviceIdChanging(global::System.Int32 value);
-        partial void OnDeviceIdChanged();
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
-        public global::System.String DeviceSn
-        {
-            get
-            {
-                return _DeviceSn;
-            }
-            set
-            {
-                OnDeviceSnChanging(value);
-                ReportPropertyChanging("DeviceSn");
-                _DeviceSn = StructuralObject.SetValidValue(value, true);
-                ReportPropertyChanged("DeviceSn");
-                OnDeviceSnChanged();
-            }
-        }
-        private global::System.String _DeviceSn;
-        partial void OnDeviceSnChanging(global::System.String value);
-        partial void OnDeviceSnChanged();
-
-        #endregion
-    
-        #region Navigation Properties
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "FK_GeoPoints_Devices", "GeoPoint")]
-        public EntityCollection<GeoPoint> GeoPoints
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<GeoPoint>("CarTrackingModel.FK_GeoPoints_Devices", "GeoPoint");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<GeoPoint>("CarTrackingModel.FK_GeoPoints_Devices", "GeoPoint", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "FK_Vehicles_Devices", "Vehicle")]
-        public EntityCollection<Vehicle> Vehicles
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<Vehicle>("CarTrackingModel.FK_Vehicles_Devices", "Vehicle");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<Vehicle>("CarTrackingModel.FK_Vehicles_Devices", "Vehicle", value);
-                }
-            }
-        }
-
-        #endregion
-    }
     
     /// <summary>
     /// No Metadata Documentation available.
@@ -318,18 +167,20 @@ namespace CarTracking.Model
         /// Create a new GeoPoint object.
         /// </summary>
         /// <param name="id">Initial value of the Id property.</param>
-        /// <param name="deviceId">Initial value of the DeviceId property.</param>
+        /// <param name="deviceSn">Initial value of the DeviceSn property.</param>
         /// <param name="latitude">Initial value of the Latitude property.</param>
         /// <param name="logitude">Initial value of the Logitude property.</param>
         /// <param name="heading">Initial value of the Heading property.</param>
-        public static GeoPoint CreateGeoPoint(global::System.Int32 id, global::System.Int32 deviceId, global::System.Decimal latitude, global::System.Decimal logitude, global::System.Int32 heading)
+        /// <param name="vehicleId">Initial value of the VehicleId property.</param>
+        public static GeoPoint CreateGeoPoint(global::System.Int32 id, global::System.String deviceSn, global::System.Decimal latitude, global::System.Decimal logitude, global::System.Int32 heading, global::System.Int32 vehicleId)
         {
             GeoPoint geoPoint = new GeoPoint();
             geoPoint.Id = id;
-            geoPoint.DeviceId = deviceId;
+            geoPoint.DeviceSn = deviceSn;
             geoPoint.Latitude = latitude;
             geoPoint.Logitude = logitude;
             geoPoint.Heading = heading;
+            geoPoint.VehicleId = vehicleId;
             return geoPoint;
         }
 
@@ -368,24 +219,24 @@ namespace CarTracking.Model
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Int32 DeviceId
+        public global::System.String DeviceSn
         {
             get
             {
-                return _DeviceId;
+                return _DeviceSn;
             }
             set
             {
-                OnDeviceIdChanging(value);
-                ReportPropertyChanging("DeviceId");
-                _DeviceId = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("DeviceId");
-                OnDeviceIdChanged();
+                OnDeviceSnChanging(value);
+                ReportPropertyChanging("DeviceSn");
+                _DeviceSn = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("DeviceSn");
+                OnDeviceSnChanged();
             }
         }
-        private global::System.Int32 _DeviceId;
-        partial void OnDeviceIdChanging(global::System.Int32 value);
-        partial void OnDeviceIdChanged();
+        private global::System.String _DeviceSn;
+        partial void OnDeviceSnChanging(global::System.String value);
+        partial void OnDeviceSnChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -458,6 +309,54 @@ namespace CarTracking.Model
         private global::System.Int32 _Heading;
         partial void OnHeadingChanging(global::System.Int32 value);
         partial void OnHeadingChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 VehicleId
+        {
+            get
+            {
+                return _VehicleId;
+            }
+            set
+            {
+                OnVehicleIdChanging(value);
+                ReportPropertyChanging("VehicleId");
+                _VehicleId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("VehicleId");
+                OnVehicleIdChanged();
+            }
+        }
+        private global::System.Int32 _VehicleId;
+        partial void OnVehicleIdChanging(global::System.Int32 value);
+        partial void OnVehicleIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> GeopointId
+        {
+            get
+            {
+                return _GeopointId;
+            }
+            set
+            {
+                OnGeopointIdChanging(value);
+                ReportPropertyChanging("GeopointId");
+                _GeopointId = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("GeopointId");
+                OnGeopointIdChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _GeopointId;
+        partial void OnGeopointIdChanging(Nullable<global::System.Int32> value);
+        partial void OnGeopointIdChanged();
 
         #endregion
     
@@ -469,16 +368,16 @@ namespace CarTracking.Model
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "FK_GeoPoints_Devices", "Device")]
-        public Device Device
+        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "VehicleGeoPoint", "Vehicle")]
+        public Vehicle Vehicle
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_GeoPoints_Devices", "Device").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Vehicle>("CarTrackingModel.VehicleGeoPoint", "Vehicle").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_GeoPoints_Devices", "Device").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Vehicle>("CarTrackingModel.VehicleGeoPoint", "Vehicle").Value = value;
             }
         }
         /// <summary>
@@ -486,17 +385,17 @@ namespace CarTracking.Model
         /// </summary>
         [BrowsableAttribute(false)]
         [DataMemberAttribute()]
-        public EntityReference<Device> DeviceReference
+        public EntityReference<Vehicle> VehicleReference
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_GeoPoints_Devices", "Device");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Vehicle>("CarTrackingModel.VehicleGeoPoint", "Vehicle");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Device>("CarTrackingModel.FK_GeoPoints_Devices", "Device", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Vehicle>("CarTrackingModel.VehicleGeoPoint", "Vehicle", value);
                 }
             }
         }
@@ -680,15 +579,15 @@ namespace CarTracking.Model
         /// <param name="licensePlate">Initial value of the LicensePlate property.</param>
         /// <param name="latitude">Initial value of the Latitude property.</param>
         /// <param name="longtitude">Initial value of the Longtitude property.</param>
-        /// <param name="deviceId">Initial value of the DeviceId property.</param>
-        public static Vehicle CreateVehicle(global::System.Int32 id, global::System.String licensePlate, global::System.Decimal latitude, global::System.Decimal longtitude, global::System.Int32 deviceId)
+        /// <param name="deviceSn">Initial value of the DeviceSn property.</param>
+        public static Vehicle CreateVehicle(global::System.Int32 id, global::System.String licensePlate, global::System.Decimal latitude, global::System.Decimal longtitude, global::System.String deviceSn)
         {
             Vehicle vehicle = new Vehicle();
             vehicle.Id = id;
             vehicle.LicensePlate = licensePlate;
             vehicle.Latitude = latitude;
             vehicle.Longtitude = longtitude;
-            vehicle.DeviceId = deviceId;
+            vehicle.DeviceSn = deviceSn;
             return vehicle;
         }
 
@@ -799,24 +698,24 @@ namespace CarTracking.Model
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Int32 DeviceId
+        public global::System.String DeviceSn
         {
             get
             {
-                return _DeviceId;
+                return _DeviceSn;
             }
             set
             {
-                OnDeviceIdChanging(value);
-                ReportPropertyChanging("DeviceId");
-                _DeviceId = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("DeviceId");
-                OnDeviceIdChanged();
+                OnDeviceSnChanging(value);
+                ReportPropertyChanging("DeviceSn");
+                _DeviceSn = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("DeviceSn");
+                OnDeviceSnChanged();
             }
         }
-        private global::System.Int32 _DeviceId;
-        partial void OnDeviceIdChanging(global::System.Int32 value);
-        partial void OnDeviceIdChanged();
+        private global::System.String _DeviceSn;
+        partial void OnDeviceSnChanging(global::System.String value);
+        partial void OnDeviceSnChanged();
 
         #endregion
     
@@ -828,34 +727,18 @@ namespace CarTracking.Model
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "FK_Vehicles_Devices", "Device")]
-        public Device Device
+        [EdmRelationshipNavigationPropertyAttribute("CarTrackingModel", "VehicleGeoPoint", "GeoPoint")]
+        public EntityCollection<GeoPoint> GeoPoints
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_Vehicles_Devices", "Device").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_Vehicles_Devices", "Device").Value = value;
-            }
-        }
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<Device> DeviceReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Device>("CarTrackingModel.FK_Vehicles_Devices", "Device");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<GeoPoint>("CarTrackingModel.VehicleGeoPoint", "GeoPoint");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Device>("CarTrackingModel.FK_Vehicles_Devices", "Device", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<GeoPoint>("CarTrackingModel.VehicleGeoPoint", "GeoPoint", value);
                 }
             }
         }

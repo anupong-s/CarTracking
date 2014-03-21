@@ -54,6 +54,7 @@
         <div id="vehicle-contain" style="float: left; width: 16%">
             <select id="e1" runat="server">
             </select>
+            <input id="chkFreeze" type="checkbox" />
             <div class="customPeriod">
                 <asp:RadioButtonList ID="RadioButtonList1" runat="server">
                     <asp:ListItem Value="1">Current journey</asp:ListItem>
@@ -87,7 +88,7 @@
                     </tbody>
                 </table>
             </div>
-            <input type="button" id="btnRealtime" value="Realtime Tracking" onclick="smarto.vehicles.realTimeTracking()" />
+            <input type="button" id="btnRealtime" value="Realtime Tracking" onclick="setInterval(function (){ smarto.vehicles.realTimeTracking(); },5000)" />
         </div>
         <div id="map">
         </div>
@@ -162,6 +163,8 @@
         var btnRefresh = $("#vehicle-refresh");
         var vehicleSelect = $("#e1");
         var dvVehicleDetail = $("#dvVehicleDetail");
+        var chkBoxFreeze = $("#chkFreeze");
+
         gDrag.jq = $('#gmarker');
 
         map = H.map("map");
@@ -323,8 +326,8 @@
                 gDrag.x = event.pageX;
                 gDrag.y = event.pageY;
             });
-                  
-            smarto.vehicles.getVehicle(); //Get vehicle
+      
+            //smarto.vehicles.getVehicle(); //Get vehicle
 
             gDrag.jq.mousedown(function (e) {                
                 if (e.button == smarto.rightClick) {
@@ -415,6 +418,10 @@
                     gDrag.jq.css('cursor', 'default');
                 }
             });
+
+        chkBoxFreeze.click(function() {
+            smarto.vehicles._isFreezeCenter = this.checked;            
+        });
 
     </script>
     </form>

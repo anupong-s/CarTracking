@@ -60,8 +60,14 @@ smarto.route = {
 
 };
 smarto.vehicles = {
-    vehicleId: 0,
-    _markers: new Array(),
+    _vehicleId: 0,
+    _markers: new Array(), //ใช้สำหรับ vehicle detail
+    _isFreezeCenter: false,
+    _culster: new L.MarkerClusterGroup(),
+    _latlngs: {
+        lastPoint: [],
+        currentPoint: []
+    },
     getVehicle: function () {
         $.ajax({
             type: "POST",
@@ -76,22 +82,10 @@ smarto.vehicles = {
 
                 var veh = a.d;
                 var markers = new Array();
-                var cluster = new L.MarkerClusterGroup();                
-
                 for (var i = 0; i < veh.length; i++) {
-                    var v = veh[i];
-                    var marker = L.marker([v.Lat, v.Lng])
-                                .bindLabel(v.Lp, { noHide: true })
-                                .showLabel();
-
-                    marker.Id = v.Id;
-                    marker.Lp = v.Lp;
-                    marker.DevSn = v.DevSn;
-                    marker.addTo(cluster);
-                    map.addLayer(cluster);
-
-                    smarto.markers.push(marker);
-                    markers.push(L.latLng(v.Lat, v.Lng));
+                    var g = veh[i];
+                    this.createMarker(g);
+                    markers.push(L.latLng(g.Lat, g.Lng));
                 }
 
                 var bounds = L.latLngBounds(markers);
@@ -105,6 +99,20 @@ smarto.vehicles = {
             }
         });
     },
+    createMarker: function (g) {
+        var marker = L.marker([g.Lat, g.Lng])
+                                .bindLabel(g.Lp, { noHide: true })
+                                .showLabel();
+
+        marker.Id = g.Id;
+        marker.Lp = g.Lp;
+        marker.DevSn = g.DevSn;
+        marker.addTo(this._culster);
+        map.addLayer(this._culster);
+
+        smarto.markers.push(marker);
+        return marker;
+    },
     removeMarkers: function () {
         for (var i = (smarto.markers.length - 1); i >= 0; i--) {
             var id = smarto.markers[i];
@@ -112,6 +120,18 @@ smarto.vehicles = {
             if (marker || "") {
                 map.removeLayer(marker);
                 smarto.markers.splice(i, 1);
+            }
+        }
+    },
+    removeMarkerById: function (id) {
+        var marker = map._layers[id];
+        if (marker || "") {
+            map.removeLayer(marker);
+            for (var i = 0; i <= smarto.markers.length; i++) {
+                var markerId = smarto.markers[i];
+                if (markerId == id) {
+                    smarto.markers.splice(i, 1);
+                }
             }
         }
     },
@@ -133,7 +153,7 @@ smarto.vehicles = {
 
                 $('#vehicleDetail tr').click(function () {
                     $('#vehicleDetail tr').removeClass("active");
-                    $(this).addClass("active");                    
+                    $(this).addClass("active");
                 });
             }
 
@@ -185,7 +205,7 @@ smarto.vehicles = {
         }
         });
         */
-        
+
         directionsService.route(request, function (response, status) {
             if (status == google.maps.DirectionsStatus.OK) {
                 var routes = new Array();
@@ -235,18 +255,20 @@ smarto.vehicles = {
         element.hide();
     },
     selectVehicleId: function (id) {
-        this.vehicleId = id;
+        this._vehicleId = id;
     },
     realTimeTracking: function () {
-        if (this.vehicleId <= 0) {
-            alert('Please select vehicle');
+        if (this._vehicleId <= 0) {
+            alert('Please select vehicle for tracking.');
             return false;
         }
+
+        var _marker = getMarkerById(this._vehicleId);
 
         $.ajax({
             type: "POST",
             url: "Tracking.aspx/GetLastKnowLocation",
-            data: "{ 'id': '" + this.vehicleId + "'}",
+            data: "{ 'deviceSn': '" + _marker.DevSn + "'}",
             context: this,
             contentType: "application/json",
             success: function (a) {
@@ -258,8 +280,28 @@ smarto.vehicles = {
             }
         });
     },
-    _realTimeSuccess: function (a) {
+    _realTimeSuccess: function (d) {
+        this.createMarker(d);
+        if (!map.getBounds().contains(L.latLng(d.Lat, d.Lng))) {
+            // marker is within map bounds
+            if (!this._isFreezeCenter) {
+                map.setView(L.latLng(d.Lat, d.Lng));
+            }
+        }
 
+        var latlngs = new Array();
+        var latlng = [d.Lat, d.Lng];
+        if (this._latlngs.currentPoint.length <= 0) {
+            this._latlngs.currentPoint = latlng;
+            latlngs.push(latlng);
+        } else {
+            this._latlngs.lastPoint = this._latlngs.currentPoint;
+            this._latlngs.currentPoint = latlng;
+            latlngs.push(this._latlngs.lastPoint);
+            latlngs.push(this._latlngs.currentPoint);
+            var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
+
+        }
     }
 };
 smarto.Pin = {
@@ -288,14 +330,19 @@ function addMarker() {
     map.addLayer(d);
 }
 
+var cluster1 = new L.MarkerClusterGroup();
 function addCluster() {
-    var cluster = new L.MarkerClusterGroup();
 
-    L.marker([13.756, 100.566]).addTo(cluster);
-    L.marker([13.795, 100.532]).addTo(cluster);
-    L.marker([13.770, 100.563]).addTo(cluster);
+    L.marker([13.756, 100.566]).addTo(cluster1);
+    L.marker([13.795, 100.532]).addTo(cluster1);
+    L.marker([13.770, 100.563]).addTo(cluster1);
 
-    map.addLayer(cluster);
+    map.addLayer(cluster1);
+}
+
+function addCluster2() {
+    L.marker([13.77207, 100.56825]).addTo(cluster1);
+    map.addLayer(cluster1);
 }
 
 function fitBound() {

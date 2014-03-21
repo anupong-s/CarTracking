@@ -6,35 +6,21 @@
     <edmx:StorageModels>
     <Schema Namespace="CarTrackingModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="CarTrackingModelStoreContainer">
-          <EntitySet Name="Devices" EntityType="CarTrackingModel.Store.Devices" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="GeoPoints" EntityType="CarTrackingModel.Store.GeoPoints" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Pins" EntityType="CarTrackingModel.Store.Pins" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Vehicles" EntityType="CarTrackingModel.Store.Vehicles" store:Type="Tables" Schema="dbo" />
-          <AssociationSet Name="FK_GeoPoints_Devices" Association="CarTrackingModel.Store.FK_GeoPoints_Devices">
-            <End Role="Devices" EntitySet="Devices" />
-            <End Role="GeoPoints" EntitySet="GeoPoints" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Vehicles_Devices" Association="CarTrackingModel.Store.FK_Vehicles_Devices">
-            <End Role="Devices" EntitySet="Devices" />
-            <End Role="Vehicles" EntitySet="Vehicles" />
-          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="Devices">
-          <Key>
-            <PropertyRef Name="DeviceId" />
-          </Key>
-          <Property Name="DeviceId" Type="int" Nullable="false" />
-          <Property Name="DeviceSn" Type="varchar" MaxLength="50" />
-        </EntityType>
         <EntityType Name="GeoPoints">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="DeviceId" Type="int" Nullable="false" />
+          <Property Name="GeopointId" Type="int" />
+          <Property Name="DeviceSn" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Latitude" Type="decimal" Nullable="false" Scale="7" />
           <Property Name="Logitude" Type="decimal" Nullable="false" Scale="7" />
           <Property Name="Heading" Type="int" Nullable="false" />
+          <Property Name="VehicleId" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Pins">
           <Key>
@@ -54,69 +40,43 @@
           <Property Name="LicensePlate" Type="varchar" Nullable="false" MaxLength="20" />
           <Property Name="Latitude" Type="decimal" Nullable="false" Scale="6" />
           <Property Name="Longtitude" Type="decimal" Nullable="false" Scale="6" />
-          <Property Name="DeviceId" Type="int" Nullable="false" />
+          <Property Name="DeviceSn" Type="varchar" Nullable="false" MaxLength="50" />
         </EntityType>
-        <Association Name="FK_GeoPoints_Devices">
-          <End Role="Devices" Type="CarTrackingModel.Store.Devices" Multiplicity="1" />
-          <End Role="GeoPoints" Type="CarTrackingModel.Store.GeoPoints" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Devices">
-              <PropertyRef Name="DeviceId" />
-            </Principal>
-            <Dependent Role="GeoPoints">
-              <PropertyRef Name="DeviceId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Vehicles_Devices">
-          <End Role="Devices" Type="CarTrackingModel.Store.Devices" Multiplicity="1" />
-          <End Role="Vehicles" Type="CarTrackingModel.Store.Vehicles" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Devices">
-              <PropertyRef Name="DeviceId" />
-            </Principal>
-            <Dependent Role="Vehicles">
-              <PropertyRef Name="DeviceId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="CarTrackingModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="CarTrackingEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Devices" EntityType="CarTrackingModel.Device" />
           <EntitySet Name="GeoPoints" EntityType="CarTrackingModel.GeoPoint" />
+          <EntitySet Name="Pins" EntityType="CarTrackingModel.Pin" />
           <EntitySet Name="Vehicles" EntityType="CarTrackingModel.Vehicle" />
-          <AssociationSet Name="FK_GeoPoints_Devices" Association="CarTrackingModel.FK_GeoPoints_Devices">
-            <End Role="Device" EntitySet="Devices" />
+          <AssociationSet Name="VehicleGeoPoint" Association="CarTrackingModel.VehicleGeoPoint">
+            <End Role="Vehicle" EntitySet="Vehicles" />
             <End Role="GeoPoint" EntitySet="GeoPoints" />
           </AssociationSet>
-          <AssociationSet Name="FK_Vehicles_Devices" Association="CarTrackingModel.FK_Vehicles_Devices">
-            <End Role="Device" EntitySet="Devices" />
-            <End Role="Vehicle" EntitySet="Vehicles" />
-          </AssociationSet>
-          <EntitySet Name="Pins" EntityType="CarTrackingModel.Pin" />
         </EntityContainer>
-        <EntityType Name="Device">
-          <Key>
-            <PropertyRef Name="DeviceId" />
-          </Key>
-          <Property Type="Int32" Name="DeviceId" Nullable="false" />
-          <Property Type="String" Name="DeviceSn" MaxLength="50" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="GeoPoints" Relationship="CarTrackingModel.FK_GeoPoints_Devices" FromRole="Device" ToRole="GeoPoint" />
-          <NavigationProperty Name="Vehicles" Relationship="CarTrackingModel.FK_Vehicles_Devices" FromRole="Device" ToRole="Vehicle" />
-        </EntityType>
         <EntityType Name="GeoPoint">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="DeviceId" Nullable="false" />
+          <Property Type="String" Name="DeviceSn" Nullable="false" />
           <Property Type="Decimal" Name="Latitude" Nullable="false" Precision="18" Scale="7" />
           <Property Type="Decimal" Name="Logitude" Nullable="false" Precision="18" Scale="7" />
           <Property Type="Int32" Name="Heading" Nullable="false" />
-          <NavigationProperty Name="Device" Relationship="CarTrackingModel.FK_GeoPoints_Devices" FromRole="GeoPoint" ToRole="Device" />
+          <Property Type="Int32" Name="VehicleId" Nullable="false" />
+          <NavigationProperty Name="Vehicle" Relationship="CarTrackingModel.VehicleGeoPoint" FromRole="GeoPoint" ToRole="Vehicle" />
+          <Property Type="Int32" Name="GeopointId" />
+        </EntityType>
+        <EntityType Name="Pin">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="PinName" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Type="Decimal" Name="Latitude" Nullable="false" Precision="18" Scale="7" />
+          <Property Type="Decimal" Name="Longitude" Nullable="false" Precision="18" Scale="7" />
+          <Property Type="DateTime" Name="CreatedDate" Nullable="false" />
         </EntityType>
         <EntityType Name="Vehicle">
           <Key>
@@ -126,75 +86,36 @@
           <Property Type="String" Name="LicensePlate" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="Decimal" Name="Latitude" Nullable="false" Precision="18" Scale="6" />
           <Property Type="Decimal" Name="Longtitude" Nullable="false" Precision="18" Scale="6" />
-          <Property Type="Int32" Name="DeviceId" Nullable="false" />
-          <NavigationProperty Name="Device" Relationship="CarTrackingModel.FK_Vehicles_Devices" FromRole="Vehicle" ToRole="Device" />
+          <Property Type="String" Name="DeviceSn" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="GeoPoints" Relationship="CarTrackingModel.VehicleGeoPoint" FromRole="Vehicle" ToRole="GeoPoint" />
         </EntityType>
-        <Association Name="FK_GeoPoints_Devices">
-          <End Type="CarTrackingModel.Device" Role="Device" Multiplicity="1" />
+        <Association Name="VehicleGeoPoint">
+          <End Type="CarTrackingModel.Vehicle" Role="Vehicle" Multiplicity="1" />
           <End Type="CarTrackingModel.GeoPoint" Role="GeoPoint" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Device">
-              <PropertyRef Name="DeviceId" />
+            <Principal Role="Vehicle">
+              <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="GeoPoint">
-              <PropertyRef Name="DeviceId" />
+              <PropertyRef Name="VehicleId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Vehicles_Devices">
-          <End Type="CarTrackingModel.Device" Role="Device" Multiplicity="1" />
-          <End Type="CarTrackingModel.Vehicle" Role="Vehicle" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Device">
-              <PropertyRef Name="DeviceId" />
-            </Principal>
-            <Dependent Role="Vehicle">
-              <PropertyRef Name="DeviceId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="Pin">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="PinName" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Type="Decimal" Name="Latitude" Precision="18" Scale="7" Nullable="false" />
-          <Property Type="Decimal" Name="Longitude" Precision="18" Scale="7" Nullable="false" />
-          <Property Type="DateTime" Name="CreatedDate" Nullable="false" />
-        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="CarTrackingModelStoreContainer" CdmEntityContainer="CarTrackingEntities">
-          <EntitySetMapping Name="Devices">
-            <EntityTypeMapping TypeName="CarTrackingModel.Device">
-              <MappingFragment StoreEntitySet="Devices">
-                <ScalarProperty Name="DeviceSn" ColumnName="DeviceSn" />
-                <ScalarProperty Name="DeviceId" ColumnName="DeviceId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GeoPoints">
             <EntityTypeMapping TypeName="CarTrackingModel.GeoPoint">
               <MappingFragment StoreEntitySet="GeoPoints">
+                <ScalarProperty Name="GeopointId" ColumnName="GeopointId" />
+                <ScalarProperty Name="VehicleId" ColumnName="VehicleId" />
                 <ScalarProperty Name="Heading" ColumnName="Heading" />
                 <ScalarProperty Name="Logitude" ColumnName="Logitude" />
                 <ScalarProperty Name="Latitude" ColumnName="Latitude" />
-                <ScalarProperty Name="DeviceId" ColumnName="DeviceId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Vehicles">
-            <EntityTypeMapping TypeName="CarTrackingModel.Vehicle">
-              <MappingFragment StoreEntitySet="Vehicles">
-                <ScalarProperty Name="DeviceId" ColumnName="DeviceId" />
-                <ScalarProperty Name="Longtitude" ColumnName="Longtitude" />
-                <ScalarProperty Name="Latitude" ColumnName="Latitude" />
-                <ScalarProperty Name="LicensePlate" ColumnName="LicensePlate" />
+                <ScalarProperty Name="DeviceSn" ColumnName="DeviceSn" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -206,6 +127,17 @@
                 <ScalarProperty Name="Longitude" ColumnName="Longitude" />
                 <ScalarProperty Name="Latitude" ColumnName="Latitude" />
                 <ScalarProperty Name="PinName" ColumnName="PinName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Vehicles">
+            <EntityTypeMapping TypeName="CarTrackingModel.Vehicle">
+              <MappingFragment StoreEntitySet="Vehicles">
+                <ScalarProperty Name="DeviceSn" ColumnName="DeviceSn" />
+                <ScalarProperty Name="Longtitude" ColumnName="Longtitude" />
+                <ScalarProperty Name="Latitude" ColumnName="Latitude" />
+                <ScalarProperty Name="LicensePlate" ColumnName="LicensePlate" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -231,18 +163,14 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="CarTrackingModel">
-        <EntityTypeShape EntityType="CarTrackingModel.Device" Width="1.5" PointX="3.875" PointY="0.75" Height="1.7879850260416652" />
-        <EntityTypeShape EntityType="CarTrackingModel.GeoPoint" Width="1.5" PointX="6.375" PointY="0.5" Height="2.1725878906249996" />
-        <EntityTypeShape EntityType="CarTrackingModel.Vehicle" Width="1.5" PointX="1" PointY="0.75" Height="2.1725878906249996" />
-        <AssociationConnector Association="CarTrackingModel.FK_GeoPoints_Devices" >
-          <ConnectorPoint PointX="5.375" PointY="1.6439925130208328" />
-          <ConnectorPoint PointX="6.375" PointY="1.6439925130208328" />
+        <EntityTypeShape EntityType="CarTrackingModel.GeoPoint" Width="1.5" PointX="3.75" PointY="3.875" Height="1.9802864583333317" />
+        <EntityTypeShape EntityType="CarTrackingModel.Pin" Width="1.5" PointX="5.375" PointY="0.75" Height="1.9802864583333331" />
+        <EntityTypeShape EntityType="CarTrackingModel.Vehicle" Width="1.5" PointX="1.5" PointY="0.875" Height="2.1725878906249996" />
+        <AssociationConnector Association="CarTrackingModel.VehicleGeoPoint">
+          <ConnectorPoint PointX="2.25" PointY="3.047587890625" />
+          <ConnectorPoint PointX="2.25" PointY="5.0574446614583337" />
+          <ConnectorPoint PointX="3.75" PointY="5.0574446614583337" />
         </AssociationConnector>
-        <AssociationConnector Association="CarTrackingModel.FK_Vehicles_Devices" >
-          <ConnectorPoint PointX="3.875" PointY="1.6439925130208328" />
-          <ConnectorPoint PointX="2.5" PointY="1.6439925130208328" />
-        </AssociationConnector>
-        <EntityTypeShape EntityType="CarTrackingModel.Pin" Width="1.5" PointX="4" PointY="3.25" Height="1.9802864583333335" />
       </Diagram>
     </Diagrams>
   </Designer>

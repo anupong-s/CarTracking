@@ -13,16 +13,17 @@ namespace CarTracking
         public decimal Lat { get; set; }
         public decimal Lng { get; set; }
         public int Hd { get; set; }
+        public string Lp { get; set; }
 
         public GeoPointInfo()
         {
-            
+
         }
 
         public GeoPointInfo(GeoPoint p)
         {
             Id = p.Id;
-            DevSn = p.Device.DeviceSn;
+            DevSn = p.Vehicle.DeviceSn;
             Lat = p.Latitude;
             Lng = p.Logitude;
             Hd = p.Heading;

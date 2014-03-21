@@ -12,12 +12,13 @@ namespace CarTracking
         public int PinPageSize { get; set; }
         public int PinCount { get; set; }
 
-        private int GeopointId { get; set; }
+        private IDictionary<string, int> GeopointIndex { get; set; }
 
         public TrackingPresenter()
         {
             PinPageIndex = 0;
             PinPageSize = 10;
+            GeopointIndex = new Dictionary<string, int>();
         }
 
         public static int PinsCount()
@@ -50,7 +51,7 @@ namespace CarTracking
             using (var ctx = new CarTrackingEntities())
             {
                 var geoPoints = ctx.GeoPoints
-                                   .Where(p => p.Device.DeviceSn == deviceSn)
+                                   .Where(p => p.Vehicle.DeviceSn == deviceSn)
                                    .AsEnumerable();
 
                 geoPoints.Partition(10).ForEach(s =>
@@ -71,7 +72,7 @@ namespace CarTracking
             using (var ctx = new CarTrackingEntities())
             {
                 var geoPoint = ctx.GeoPoints.FirstOrDefault(p =>
-                                    p.Device.DeviceSn == deviceSn && p.Id == (id + 1));
+                                    p.Vehicle.DeviceSn == deviceSn && p.Id == (id + 1));
 
                 return geoPoint == null ? new GeoPointInfo() : new GeoPointInfo(geoPoint);
             }
@@ -130,23 +131,36 @@ namespace CarTracking
             }
         }
 
-        public GeoPointInfo GetLastKnowLocation(int id)
+        public GeoPointInfo GetLastKnowLocation(string deviceSn)
         {
-            GeopointId += 1;
+            var geopointId = 1;
+            if (!GeopointIndex.ContainsKey(deviceSn))
+            {
+                GeopointIndex.Add(deviceSn, geopointId);
+            }
+            else
+            {
+                geopointId = GeopointIndex[deviceSn] + 1;
+            }
+
             using (var ctx = new CarTrackingEntities())
             {
                 var point = ctx.GeoPoints.OrderBy(s => s.Id)
-                               .FirstOrDefault(s => s.DeviceId == id && s.Id == GeopointId);
-
+                               .FirstOrDefault(s => s.Vehicle.DeviceSn == deviceSn
+                                            && s.GeopointId == geopointId);
                 if (point == null)
                 {
-                    GeopointId = 1;
+                    geopointId = 1;
                     point = ctx.GeoPoints.OrderBy(s => s.Id)
-                               .FirstOrDefault(s => s.DeviceId == id && s.Id == GeopointId);
+                               .FirstOrDefault(s => s.Vehicle.DeviceSn == deviceSn
+                                            && s.GeopointId == geopointId);
                 }
+
+                GeopointIndex[deviceSn] = geopointId;
 
                 return new GeoPointInfo(point);
             }
         }
+
     }
 }

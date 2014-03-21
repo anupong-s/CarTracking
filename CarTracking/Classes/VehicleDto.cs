@@ -23,7 +23,7 @@ namespace CarTracking
                 Lat = v.Latitude,
                 Lng = v.Longtitude,
                 Lp = v.LicensePlate,
-                DevSn = v.Device.DeviceSn
+                DevSn = v.DeviceSn,
             };
         }
     }

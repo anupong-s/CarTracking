@@ -82,10 +82,10 @@ namespace CarTracking
 
         [WebMethod(EnableSession = true)]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static GeoPointInfo GetLastKnowLocation(int id)
+        public static GeoPointInfo GetLastKnowLocation(string deviceSn)
         {
             var presenter = (TrackingPresenter)HttpContext.Current.Session["TrackingPresenter"];
-            return presenter.GetLastKnowLocation(id);
+            return presenter.GetLastKnowLocation(deviceSn);
         }
 
         #endregion
