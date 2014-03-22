@@ -38,13 +38,14 @@
 		    //var pin = map._layers[smarto.pinId];
 		    pl = L.polyline(geom, { color: '#3ebcd3', opacity: 0.5, weight: 7 });
             //var marker2 = L.marker([this._route.waypoints[1][0], this._route.waypoints[1][1]]);
-		    var marker1 = this._route.waypoints[0];
-		    var marker2 = this._route.waypoints[1];
+		    //var marker1 = this._route.waypoints[0];
+		    //var marker2 = this._route.waypoints[1];
 
-		    this.lg = L.layerGroup([marker1, marker2]).addLayer(pl).addTo(map);
+		    //this.lg = L.layerGroup([marker1, marker2]).addLayer(pl).addTo(map);		    
+		    pl.addTo(map);
 		    this._layers.push(pl);
 
-		    /*
+		    /* original code
 			for (i = 0; i < this.options.styles.length; i++) {
 				pl = L.polyline(geom, this.options.styles[i]).addTo(map);
 				if (this.options.addWaypoints) {
@@ -52,8 +53,6 @@
 				}
 				this._layers.push(pl);
 			}*/
-
-
 		},
 
 		onRemove: function(map) {

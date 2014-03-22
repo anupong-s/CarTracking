@@ -22,11 +22,7 @@
     <script src="hobbit/jquery-1.10.2.min.js" type="text/javascript"></script>
     <script src="hobbit/jquery-ui.min.js" type="text/javascript"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-    <script src="hobbit/leaflet-routing-machine.js" type="text/javascript"></script>
-    <script src="hobbit/L.Routing.OSRM.js" type="text/javascript"></script>
     <script src="hobbit/L.Routing.Line.js" type="text/javascript"></script>
-    <script src="hobbit/L.Routing.Itinerary.js" type="text/javascript"></script>
-    <script src="hobbit/L.Routing.Control.js" type="text/javascript"></script>
     <script src="hobbit/SmartoScript.js?v2" type="text/javascript"></script>
     <script src="Scripts/select2.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
@@ -54,7 +50,9 @@
         <div id="vehicle-contain" style="float: left; width: 16%">
             <select id="e1" runat="server">
             </select>
-            <input id="chkFreeze" type="checkbox" />
+            <div align="right">
+                <input id="chkFreeze" type="checkbox" />Freeze map
+            </div>
             <div class="customPeriod">
                 <asp:RadioButtonList ID="RadioButtonList1" runat="server">
                     <asp:ListItem Value="1">Current journey</asp:ListItem>
@@ -327,8 +325,6 @@
                 gDrag.y = event.pageY;
             });
       
-            //smarto.vehicles.getVehicle(); //Get vehicle
-
             gDrag.jq.mousedown(function (e) {                
                 if (e.button == smarto.rightClick) {
                     dialogPin.dialog("close");
@@ -351,8 +347,10 @@
                     gDrag.jq.html('');
                 }
             });
-        });
 
+            smarto.vehicles.getVehicle(); //Get vehicle
+        });
+        
         draggablePin.draggable({
             helper: 'clone',
             containment: "#form1",

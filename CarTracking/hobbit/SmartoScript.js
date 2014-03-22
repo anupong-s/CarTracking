@@ -63,7 +63,7 @@ smarto.vehicles = {
     _vehicleId: 0,
     _markers: new Array(), //ใช้สำหรับ vehicle detail
     _isFreezeCenter: false,
-    _culster: new L.MarkerClusterGroup(),
+    _cluster: new L.MarkerClusterGroup(),
     _latlngs: {
         lastPoint: [],
         currentPoint: []
@@ -107,8 +107,8 @@ smarto.vehicles = {
         marker.Id = g.Id;
         marker.Lp = g.Lp;
         marker.DevSn = g.DevSn;
-        marker.addTo(this._culster);
-        map.addLayer(this._culster);
+        marker.addTo(this._cluster);
+        map.addLayer(this._cluster);
 
         smarto.markers.push(marker);
         return marker;
@@ -172,16 +172,23 @@ smarto.vehicles = {
 
         var pin = map._layers[pinId];
         var ll = pin._latlng;
-
+        var context = this;
         for (var i = 0; i < smarto.markers.length; i++) {
+            //setTimeout(function () {
             var m = smarto.markers[i];
-            this.vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
+            context.vehicleDistance(m, [L.latLng(ll.lat, ll.lng), L.latLng(m._latlng.lat, m._latlng.lng)]);
+            //}, 2500);
         }
     },
+    //วาดเส้นบนแผนที่
     directionPath: function (markerId) {
-        //วาดเส้นบน map
         var marker = getMarkerById(markerId);
         var m = map._layers[marker._leaflet_id];
+        if (!m || m == "") {
+            //กรณีทำเป็น cluster เอาไว้ ต้องไปหาที่ cluster layer group
+            m = this.getMarkerInClusterLayer(marker._leaflet_id);
+        }
+
         var pin = getMarkerPin();
 
         var directionsService = new google.maps.DirectionsService();
@@ -239,14 +246,17 @@ smarto.vehicles = {
 
         this.clearVehicleDetail();
         var context = this;
-        directionsService.route(request, function (response, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
-                var value = response.routes[0].legs[0].distance.value;
-                var text = response.routes[0].legs[0].distance.text;
-                context.addDistance(marker.Id, marker.Lp, value, text);
-                context.bindVehicleDetail();
-            }
-        });
+
+        setTimeout(function () {
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    var value = response.routes[0].legs[0].distance.value;
+                    var text = response.routes[0].legs[0].distance.text;
+                    context.addDistance(marker.Id, marker.Lp, value, text);
+                    context.bindVehicleDetail();
+                }
+            });
+        }, 2500);
     },
     showDetail: function (element) {
         element.show();
@@ -302,6 +312,20 @@ smarto.vehicles = {
             var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
 
         }
+    },
+    getMarkerInClusterLayer: function (leafletId) {
+        var result = null;
+        var clusterLayer = map._layers[this._cluster._leaflet_id];
+        if (clusterLayer && clusterLayer.getLayers().length > 0) {
+            var layers = clusterLayer.getLayers();
+            for (var y = 0; y < layers.length; y++) {
+                if (layers[y]._leaflet_id == leafletId) {
+                    result = layers[y];
+                    break;
+                }
+            }
+        }
+        return result;
     }
 };
 smarto.Pin = {
