@@ -58,7 +58,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server">
     </asp:ScriptManager>
     <div id="map_contain">
-        <div id="vehicle-contain" style="float: left; width: 16%">
+        <div id="vehicle-contain" style="float: left; width: 16%;">
             <select id="e1" runat="server">
             </select>
             <div align="right">
@@ -100,64 +100,62 @@
             <input type="button" id="btnRealtime" style="display: none;" value="Realtime Tracking"
                 onclick="testRealtimeTracking()" />
         </div>
-        <div id="dialog-selected-pin" title="" style="z-index: 30000">
-        </div>
         <div id="map">
         </div>
-        <input type="button" id="getVehiclesId" value="Get Vehicles" style="display: none;"
-            onclick="getVehicle();" />
+        <div style="clear: both">
+        </div>
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
-        <div id="dialog-form" title="Save Your Pin" style="z-index: 30000">
-            <label for="name">
-                Name
-            </label>
-            <asp:TextBox ID="pinName" runat="server" CssClass="text ui-widget-content ui-corner-all"></asp:TextBox>
-            <p>
-                <asp:RequiredFieldValidator ID="ReqPinName" runat="server" ControlToValidate="pinName"
-                    Display="Dynamic" ErrorMessage="Missing pin name" ValidationGroup="PinGrp">         
-                </asp:RequiredFieldValidator>
-            </p>
-        </div>
-        <div id="dialog-pins" style="z-index: 30000">
-            <div id="dvGrid" style="width: 300px; height: 200px; overflow: auto;">
-                <asp:UpdatePanel ID="udpGridViewPin" runat="server" UpdateMode="Conditional">
-                    <ContentTemplate>
-                        <asp:GridView ID="GridViewPin" runat="server" Width="100%" AutoGenerateColumns="False"
-                            OnRowCancelingEdit="GridViewPin_RowCancelingEdit" OnRowDeleting="GridViewPin_RowDeleting"
-                            OnRowEditing="GridViewPin_RowEditing" OnRowUpdating="GridViewPin_RowUpdating"
-                            ShowHeader="False" DataKeyNames="Id" OnRowDataBound="GridViewPin_RowDataBound">
-                            <Columns>
-                                <asp:TemplateField>
-                                    <EditItemTemplate>
-                                        <asp:TextBox ID="txtPinName1" EnableViewState="True" runat="server" ClientIDMode="Static"
-                                            Text='<%# Eval("Name") %>'></asp:TextBox>
-                                    </EditItemTemplate>
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="LbtnName" runat="server" OnClientClick="alert('x');" Text='<%# Eval("Name") %>'></asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:CommandField ShowDeleteButton="True" ShowEditButton="True" />
-                            </Columns>
-                        </asp:GridView>
-                        <asp:Button ID="BtnRefreshGridViewPin" Style="display: none" runat="server" OnClick="BtnRefreshGridViewPin_Click" />
-                        <asp:Button ID="BtnClearGridViewPin" Style="display: none" runat="server" OnClick="BtnClearGridViewPin_Click" />
-                    </ContentTemplate>
-                    <Triggers>
-                        <asp:AsyncPostBackTrigger ControlID="BtnRefreshGridViewPin" EventName="Click" />
-                        <asp:AsyncPostBackTrigger ControlID="BtnClearGridViewPin" EventName="Click" />
-                    </Triggers>
-                </asp:UpdatePanel>
-                <div style="height: 20px;">
-                </div>
-                <asp:HiddenField ID="hdnScrollPos" EnableViewState="True" runat="server" />
-                <asp:HiddenField ID="hdnPageIndex" EnableViewState="True" runat="server" />
-                <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
-            </div>
-        </div>
     </div>
-    <div style="clear: both">
+    <div id="dialog-selected-pin" title="" style="z-index: 30000">
+    </div>
+    <div id="dialog-form" title="Save Your Pin" style="z-index: 30000">
+        <label for="name">
+            Name
+        </label>
+        <asp:TextBox ID="pinName" runat="server" CssClass="text ui-widget-content ui-corner-all"></asp:TextBox>
+        <p>
+            <asp:RequiredFieldValidator ID="ReqPinName" runat="server" ControlToValidate="pinName"
+                Display="Dynamic" ErrorMessage="Missing pin name" ValidationGroup="PinGrp">         
+            </asp:RequiredFieldValidator>
+        </p>
+    </div>
+    <div id="dialog-pins" style="z-index: 30000">
+        <div id="dvGrid" style="width: 300px; height: 200px; overflow: auto;">
+            <asp:UpdatePanel ID="udpGridViewPin" runat="server" UpdateMode="Conditional">
+                <ContentTemplate>
+                    <asp:GridView ID="GridViewPin" runat="server" Width="100%" AutoGenerateColumns="False"
+                        OnRowCancelingEdit="GridViewPin_RowCancelingEdit" OnRowDeleting="GridViewPin_RowDeleting"
+                        OnRowEditing="GridViewPin_RowEditing" OnRowUpdating="GridViewPin_RowUpdating"
+                        ShowHeader="False" DataKeyNames="Id" OnRowDataBound="GridViewPin_RowDataBound">
+                        <Columns>
+                            <asp:TemplateField>
+                                <EditItemTemplate>
+                                    <asp:TextBox ID="txtPinName1" EnableViewState="True" runat="server" ClientIDMode="Static"
+                                        Text='<%# Eval("Name") %>'></asp:TextBox>
+                                </EditItemTemplate>
+                                <ItemTemplate>
+                                    <asp:LinkButton ID="LbtnName" runat="server" OnClientClick="alert('x');" Text='<%# Eval("Name") %>'></asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:CommandField ShowDeleteButton="True" ShowEditButton="True" />
+                        </Columns>
+                    </asp:GridView>
+                    <asp:Button ID="BtnRefreshGridViewPin" Style="display: none" runat="server" OnClick="BtnRefreshGridViewPin_Click" />
+                    <asp:Button ID="BtnClearGridViewPin" Style="display: none" runat="server" OnClick="BtnClearGridViewPin_Click" />
+                </ContentTemplate>
+                <Triggers>
+                    <asp:AsyncPostBackTrigger ControlID="BtnRefreshGridViewPin" EventName="Click" />
+                    <asp:AsyncPostBackTrigger ControlID="BtnClearGridViewPin" EventName="Click" />
+                </Triggers>
+            </asp:UpdatePanel>
+            <div style="height: 20px;">
+            </div>
+            <asp:HiddenField ID="hdnScrollPos" EnableViewState="True" runat="server" />
+            <asp:HiddenField ID="hdnPageIndex" EnableViewState="True" runat="server" />
+            <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
+        </div>
     </div>
     <div id="dvStreetview" class="hd-strv-main" style="display: none;">
         <div id="dvStreetviewDrag" style="top: 0; right: 0; width: 30px; position: absolute;
@@ -340,8 +338,7 @@
         });
         $(document).mousemove(function (event) {
             gDrag.x = event.pageX;
-            gDrag.y = event.pageY;
-            console.log("x:" + event.pageX + "| y:" + event.pageY);
+            gDrag.y = event.pageY;            
         });
 
         $(document).ready(function () {
@@ -362,12 +359,11 @@
 
             gDrag.jq.draggable({
                 start: function (event, ui) {
-                    if (gDrag.item._icon == null || smarto.Pin.wasDropPin) {    
-                        console.log("return false");
+                    if (gDrag.item._icon == null || smarto.Pin.wasDropPin) {
                          return false;
                     }
-                    console.log("a:" + gDrag.x + "| y:" + gDrag.y);
-                    gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
+                    
+                    gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" />');
                     removeMarkerById(gDrag.item._leaflet_id);
                 },
                 stop: function (event, ui) {
