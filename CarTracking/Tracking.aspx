@@ -41,6 +41,17 @@
             return (id == 'draggablePin' || id == 'gmarker');
         }       
     </script>
+    <style type="text/css">
+        .hd-strv-main
+        {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            z-index: 99999;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
     <form id="form1" runat="server">
@@ -86,11 +97,12 @@
                     </tbody>
                 </table>
             </div>
-            <input type="button" id="btnRealtime" value="Realtime Tracking" onclick="setInterval(function (){ smarto.vehicles.realTimeTracking(); },5000)" />
+            <input type="button" id="btnRealtime" style="display: none;" value="Realtime Tracking"
+                onclick="testRealtimeTracking()" />
+        </div>
+        <div id="dialog-selected-pin" title="" style="z-index: 30000">
         </div>
         <div id="map">
-        </div>
-        <div style="clear: both">
         </div>
         <input type="button" id="getVehiclesId" value="Get Vehicles" style="display: none;"
             onclick="getVehicle();" />
@@ -144,7 +156,12 @@
                 <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
             </div>
         </div>
-        <div id="dialog-selected-pin" title="" style="z-index: 30000">
+    </div>
+    <div style="clear: both">
+    </div>
+    <div id="dvStreetview" class="hd-strv-main" style="display: none;">
+        <div id="dvStreetviewDrag" style="top: 0; right: 0; width: 30px; position: absolute;
+            height: 30px; z-index: 9999; background-color: black; float: left;">
         </div>
     </div>
     <script type="text/javascript">
@@ -166,7 +183,7 @@
         gDrag.jq = $('#gmarker');
 
         map = H.map("map");
-        
+
         dvMap.addPin = function(lat, lng) {
 
             smarto.Pin.wasDropPin = true;
@@ -312,18 +329,27 @@
             if (data.id != "0") {
                 btnRefresh.hide();                    
                 smarto.vehicles.selectVehicleId(data.id);
+
+                smarto.vehicles._realTimeInterval = setInterval('smarto.vehicles.realTimeTracking();', 5000);
+
             } else {
                 btnRefresh.show();
+                clearInterval(smarto.vehicles._realTimeInterval);
+                $("#dvStreetview").hide();
             }            
         });
-        
+        $(document).mousemove(function (event) {
+            gDrag.x = event.pageX;
+            gDrag.y = event.pageY;
+            console.log("x:" + event.pageX + "| y:" + event.pageY);
+        });
+
         $(document).ready(function () {
             
             this.oncontextmenu = function() { return false; };
-            $(this).mousemove(function (event) {
-                gDrag.x = event.pageX;
-                gDrag.y = event.pageY;
-            });
+            
+            //test drag
+            $("#dvStreetview").draggable({ containment:'#map_contain', handle: '#dvStreetviewDrag' });            
       
             gDrag.jq.mousedown(function (e) {                
                 if (e.button == smarto.rightClick) {
@@ -336,10 +362,11 @@
 
             gDrag.jq.draggable({
                 start: function (event, ui) {
-                    if (gDrag.item._icon == null || smarto.Pin.wasDropPin) {                        
+                    if (gDrag.item._icon == null || smarto.Pin.wasDropPin) {    
+                        console.log("return false");
                          return false;
                     }
-
+                    console.log("a:" + gDrag.x + "| y:" + gDrag.y);
                     gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" style="z-index: 20000;" />');
                     removeMarkerById(gDrag.item._leaflet_id);
                 },
@@ -421,6 +448,9 @@
             smarto.vehicles._isFreezeCenter = this.checked;            
         });
 
+        function testRealtimeTracking() {
+            smarto.vehicles._realTimeInterval = setInterval('smarto.vehicles.realTimeTracking();', 5000);
+        }
     </script>
     </form>
 </body>

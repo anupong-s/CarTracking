@@ -9973,8 +9973,7 @@
                                 var b = this,
                         d;
                                 this._streetViewService = new google.maps.StreetViewService;
-                                var e =
-                        this._streetViewPanorama = new google.maps.StreetViewPanorama(a);
+                                var e = this._streetViewPanorama = new google.maps.StreetViewPanorama(a);
                                 google.maps.event.addListener(e, "pov_changed", function () {
                                     b.visible && (b._showing || (b.open(), b._once = !0), d = b._streetViewPanorama.getPov().heading, b._map.hasLayer(b.directionMarker) && (b.directionMarker.angle = d, b.directionMarker._latlng = b.latlng, b.directionMarker.update()))
                                 });

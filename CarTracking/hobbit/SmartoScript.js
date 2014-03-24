@@ -68,6 +68,7 @@ smarto.vehicles = {
         lastPoint: [],
         currentPoint: []
     },
+    _realTimeInterval: null,
     getVehicle: function () {
         $.ajax({
             type: "POST",
@@ -269,6 +270,7 @@ smarto.vehicles = {
     },
     realTimeTracking: function () {
         if (this._vehicleId <= 0) {
+            clearInterval(this._realTimeInterval);
             alert('Please select vehicle for tracking.');
             return false;
         }
@@ -291,12 +293,16 @@ smarto.vehicles = {
         });
     },
     _realTimeSuccess: function (d) {
-        this.createMarker(d);
+        var marker = this.createMarker(d);
         if (!map.getBounds().contains(L.latLng(d.Lat, d.Lng))) {
             // marker is within map bounds
             if (!this._isFreezeCenter) {
                 map.setView(L.latLng(d.Lat, d.Lng));
             }
+        }
+
+        if (smarto.pinId > 0) {
+            this.directionPath(marker.Id);
         }
 
         var latlngs = new Array();
@@ -310,8 +316,24 @@ smarto.vehicles = {
             latlngs.push(this._latlngs.lastPoint);
             latlngs.push(this._latlngs.currentPoint);
             var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
-
         }
+
+        this.streetView(d);
+    },
+    streetView: function (m) {        
+        var fenway = new google.maps.LatLng(m.Lat, m.Lng);
+        var panoramaOptions = {
+            position: fenway,
+            pov: {
+                heading: m.Hd,
+                pitch: 0
+            },
+            visible: true
+        };
+
+        $("#dvStreetview").show();
+        var a = document.getElementById("dvStreetview");        
+        var e = new google.maps.StreetViewPanorama(a, panoramaOptions);
     },
     getMarkerInClusterLayer: function (leafletId) {
         var result = null;
@@ -337,8 +359,6 @@ smarto.Pin = {
         __doPostBack('BtnClearGridViewPin', '');
     }
 };
-
-
 
 /********* test *********/
 function addMarker() {

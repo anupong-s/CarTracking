@@ -21,7 +21,7 @@ namespace CarTracking
             {
                 Id = v.Id,
                 Lat = v.Latitude,
-                Lng = v.Longtitude,
+                Lng = v.Longitude,
                 Lp = v.LicensePlate,
                 DevSn = v.DeviceSn,
             };

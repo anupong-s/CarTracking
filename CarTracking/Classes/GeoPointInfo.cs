@@ -25,7 +25,7 @@ namespace CarTracking
             Id = p.Id;
             DevSn = p.Vehicle.DeviceSn;
             Lat = p.Latitude;
-            Lng = p.Logitude;
+            Lng = p.Longitude;
             Hd = p.Heading;
         }
 

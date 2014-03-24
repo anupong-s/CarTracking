@@ -169,18 +169,18 @@ namespace CarTracking.Model
         /// <param name="id">Initial value of the Id property.</param>
         /// <param name="deviceSn">Initial value of the DeviceSn property.</param>
         /// <param name="latitude">Initial value of the Latitude property.</param>
-        /// <param name="logitude">Initial value of the Logitude property.</param>
         /// <param name="heading">Initial value of the Heading property.</param>
         /// <param name="vehicleId">Initial value of the VehicleId property.</param>
-        public static GeoPoint CreateGeoPoint(global::System.Int32 id, global::System.String deviceSn, global::System.Decimal latitude, global::System.Decimal logitude, global::System.Int32 heading, global::System.Int32 vehicleId)
+        /// <param name="longitude">Initial value of the Longitude property.</param>
+        public static GeoPoint CreateGeoPoint(global::System.Int32 id, global::System.String deviceSn, global::System.Decimal latitude, global::System.Int32 heading, global::System.Int32 vehicleId, global::System.Decimal longitude)
         {
             GeoPoint geoPoint = new GeoPoint();
             geoPoint.Id = id;
             geoPoint.DeviceSn = deviceSn;
             geoPoint.Latitude = latitude;
-            geoPoint.Logitude = logitude;
             geoPoint.Heading = heading;
             geoPoint.VehicleId = vehicleId;
+            geoPoint.Longitude = longitude;
             return geoPoint;
         }
 
@@ -267,30 +267,6 @@ namespace CarTracking.Model
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Decimal Logitude
-        {
-            get
-            {
-                return _Logitude;
-            }
-            set
-            {
-                OnLogitudeChanging(value);
-                ReportPropertyChanging("Logitude");
-                _Logitude = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("Logitude");
-                OnLogitudeChanged();
-            }
-        }
-        private global::System.Decimal _Logitude;
-        partial void OnLogitudeChanging(global::System.Decimal value);
-        partial void OnLogitudeChanged();
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
         public global::System.Int32 Heading
         {
             get
@@ -357,6 +333,30 @@ namespace CarTracking.Model
         private Nullable<global::System.Int32> _GeopointId;
         partial void OnGeopointIdChanging(Nullable<global::System.Int32> value);
         partial void OnGeopointIdChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Decimal Longitude
+        {
+            get
+            {
+                return _Longitude;
+            }
+            set
+            {
+                OnLongitudeChanging(value);
+                ReportPropertyChanging("Longitude");
+                _Longitude = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Longitude");
+                OnLongitudeChanged();
+            }
+        }
+        private global::System.Decimal _Longitude;
+        partial void OnLongitudeChanging(global::System.Decimal value);
+        partial void OnLongitudeChanged();
 
         #endregion
     
@@ -578,16 +578,16 @@ namespace CarTracking.Model
         /// <param name="id">Initial value of the Id property.</param>
         /// <param name="licensePlate">Initial value of the LicensePlate property.</param>
         /// <param name="latitude">Initial value of the Latitude property.</param>
-        /// <param name="longtitude">Initial value of the Longtitude property.</param>
         /// <param name="deviceSn">Initial value of the DeviceSn property.</param>
-        public static Vehicle CreateVehicle(global::System.Int32 id, global::System.String licensePlate, global::System.Decimal latitude, global::System.Decimal longtitude, global::System.String deviceSn)
+        /// <param name="longitude">Initial value of the Longitude property.</param>
+        public static Vehicle CreateVehicle(global::System.Int32 id, global::System.String licensePlate, global::System.Decimal latitude, global::System.String deviceSn, global::System.Decimal longitude)
         {
             Vehicle vehicle = new Vehicle();
             vehicle.Id = id;
             vehicle.LicensePlate = licensePlate;
             vehicle.Latitude = latitude;
-            vehicle.Longtitude = longtitude;
             vehicle.DeviceSn = deviceSn;
+            vehicle.Longitude = longitude;
             return vehicle;
         }
 
@@ -674,30 +674,6 @@ namespace CarTracking.Model
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Decimal Longtitude
-        {
-            get
-            {
-                return _Longtitude;
-            }
-            set
-            {
-                OnLongtitudeChanging(value);
-                ReportPropertyChanging("Longtitude");
-                _Longtitude = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("Longtitude");
-                OnLongtitudeChanged();
-            }
-        }
-        private global::System.Decimal _Longtitude;
-        partial void OnLongtitudeChanging(global::System.Decimal value);
-        partial void OnLongtitudeChanged();
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
         public global::System.String DeviceSn
         {
             get
@@ -716,6 +692,30 @@ namespace CarTracking.Model
         private global::System.String _DeviceSn;
         partial void OnDeviceSnChanging(global::System.String value);
         partial void OnDeviceSnChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Decimal Longitude
+        {
+            get
+            {
+                return _Longitude;
+            }
+            set
+            {
+                OnLongitudeChanging(value);
+                ReportPropertyChanging("Longitude");
+                _Longitude = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Longitude");
+                OnLongitudeChanged();
+            }
+        }
+        private global::System.Decimal _Longitude;
+        partial void OnLongitudeChanging(global::System.Decimal value);
+        partial void OnLongitudeChanged();
 
         #endregion
     
