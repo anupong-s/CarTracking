@@ -162,5 +162,18 @@ namespace CarTracking
             }
         }
 
+        public IEnumerable<GeoPointInfo> GetHistoriesTracking(string deviceSn)
+        {
+            using (var ctx = new CarTrackingEntities())
+            {
+                var points = ctx.GeoPoints.Where(s => s.Vehicle.DeviceSn == deviceSn).ToList();
+
+                foreach (var point in points)
+                {
+                    yield return new GeoPointInfo(point);
+                }
+            }
+        }
+
     }
 }

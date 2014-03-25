@@ -29,14 +29,6 @@
     <!-- Map Stylesheet -->
     <script type="text/javascript">
         //Object สำหรับเก็บค่า marker และ div สำหรับการลาก marker ออกจาก Map        
-        function showPin() {
-            $("#draggablePin").show();
-        }
-
-        function hidePin() {
-            $("#draggablePin").hide();
-        }
-
         function canDropable(id) {
             return (id == 'draggablePin' || id == 'gmarker');
         }       
@@ -44,12 +36,47 @@
     <style type="text/css">
         .hd-strv-main
         {
+            background-color: red;
             position: absolute;
             width: 300px;
             height: 300px;
             z-index: 99999;
             bottom: 0;
             left: 0;
+        }
+        .hd-strv-drag
+        {
+            top: 0;
+            right: 0;
+            width: 30px;
+            position: absolute;
+            height: 30px;
+            z-index: 9999;
+            background-color: black;
+            float: left;
+        }
+        .hd-strv-close
+        {
+            top: 0;
+            right: 0;
+            width: 30px;
+            position: absolute;
+            height: 30px;
+            z-index: 9999;
+            background-color: black;
+            float: left;
+        }
+        .sd-btn-sv
+        {
+            right: 0px;
+            bottom: 86px;
+            width: 20px;
+            height: 40px;
+            background-image: url(hobbit/images/btnStreetView.jpg);
+        }
+        .sd-btn-sv:hover
+        {
+            background-image: url(hobbit/images/btnStreetView_hover.jpg);
         }
     </style>
 </head>
@@ -65,7 +92,7 @@
                 <input id="chkFreeze" type="checkbox" />Freeze map
             </div>
             <div class="customPeriod">
-                <asp:RadioButtonList ID="RadioButtonList1" runat="server">
+                <asp:RadioButtonList ID="rbPeriods" runat="server">
                     <asp:ListItem Value="1">Current journey</asp:ListItem>
                     <asp:ListItem Value="2">Last journey</asp:ListItem>
                     <asp:ListItem Value="3">Last 12 hours</asp:ListItem>
@@ -97,8 +124,6 @@
                     </tbody>
                 </table>
             </div>
-            <input type="button" id="btnRealtime" style="display: none;" value="Realtime Tracking"
-                onclick="testRealtimeTracking()" />
         </div>
         <div id="map">
         </div>
@@ -157,11 +182,6 @@
             <asp:HiddenField ID="hdnPageSize" EnableViewState="True" runat="server" />
         </div>
     </div>
-    <div id="dvStreetview" class="hd-strv-main" style="display: none;">
-        <div id="dvStreetviewDrag" style="top: 0; right: 0; width: 30px; position: absolute;
-            height: 30px; z-index: 9999; background-color: black; float: left;">
-        </div>
-    </div>
     <script type="text/javascript">
         var myIconUrl = '<%= MyIcon %>';
         var pageIndex = 0;
@@ -190,7 +210,7 @@
             var obj = pin.addTo(map);
             smarto.pinId = obj._leaflet_id; //หา marker var marker = map._layers[smarto.pinId];
 
-            hidePin();
+            draggablePin.hidePin();
 
             pin.addEventListener('mouseout', function () {
                 pin.closePopup();
@@ -315,6 +335,9 @@
             },
             addPin: function(lat, lng) {                
                 dvMap.addPin(lat, lng);
+                
+                map.setView(L.latLng(lat, lng));
+                
                 this.closePopup();
             }
         };
@@ -327,15 +350,23 @@
             if (data.id != "0") {
                 btnRefresh.hide();                    
                 smarto.vehicles.selectVehicleId(data.id);
-
-                smarto.vehicles._realTimeInterval = setInterval('smarto.vehicles.realTimeTracking();', 5000);
-
             } else {
-                btnRefresh.show();
-                clearInterval(smarto.vehicles._realTimeInterval);
+                btnRefresh.show();                
                 $("#dvStreetview").hide();
             }            
+
+            var elementRef = document.getElementById('<%= rbPeriods.ClientID %>');
+            var inputElementArray = elementRef.getElementsByTagName('input');
+
+            for (var i = 0; i < inputElementArray.length; i++) {
+                var inputElement = inputElementArray[i];
+
+                inputElement.checked = false;
+            }
+            return false;
+        
         });
+
         $(document).mousemove(function (event) {
             gDrag.x = event.pageX;
             gDrag.y = event.pageY;            
@@ -343,11 +374,9 @@
 
         $(document).ready(function () {
             
-            this.oncontextmenu = function() { return false; };
+            this.oncontextmenu = function() { return false; };            
+            map.control.rightclick.disable();
             
-            //test drag
-            $("#dvStreetview").draggable({ containment:'#map_contain', handle: '#dvStreetviewDrag' });            
-      
             gDrag.jq.mousedown(function (e) {                
                 if (e.button == smarto.rightClick) {
                     dialogPin.dialog("close");
@@ -364,7 +393,7 @@
                     }
                     
                     gDrag.jq.html('<img src="' + gDrag.item._icon.src + '" />');
-                    removeMarkerById(gDrag.item._leaflet_id);
+                    smarto.vehicles.removeMarkerById(gDrag.item._leaflet_id);
                 },
                 stop: function (event, ui) {
                     gDrag.jq.html('');
@@ -374,6 +403,7 @@
             smarto.vehicles.getVehicle(); //Get vehicle
         });
         
+        //PIN
         draggablePin.draggable({
             helper: 'clone',
             containment: "#form1",
@@ -391,18 +421,13 @@
             }
         });
 
-        function removeMarkerById(id) {
-            var marker = map._layers[id];
-            if (marker || "") {
-                map.removeLayer(marker);
-                for (var i = 0; i <= smarto.markers.length; i++) {
-                    var markerId = smarto.markers[i];
-                    if (markerId == id) {
-                        smarto.markers.splice(i, 1);
-                    }
-                }
-            }
-        }
+        draggablePin.showPin = function() {
+            $(this).show();
+        };
+
+        draggablePin.hidePin = function() {
+            $(this).hide();
+        };
 
         dvGrid.on("scroll", function (e) {
             var $o = $(e.currentTarget);
@@ -427,11 +452,11 @@
                 drop: function (event, ui, item) {
 
                     if (smarto.pinId == gDrag.item._leaflet_id) {
-                        removeMarkerById(gDrag.item._leaflet_id);
+                        smarto.vehicles.removeMarkerById(gDrag.item._leaflet_id);
                         smarto.pinId = 0;
                         smarto.vehicles.clearVehicleDetail();
                         smarto.route.remove(map);
-                        showPin();
+                        draggablePin.showPin();
                         btnRefresh.show();
                         smarto.vehicles.hideDetail(dvVehicleDetail);
                     }
@@ -444,9 +469,20 @@
             smarto.vehicles._isFreezeCenter = this.checked;            
         });
 
-        function testRealtimeTracking() {
-            smarto.vehicles._realTimeInterval = setInterval('smarto.vehicles.realTimeTracking();', 5000);
+
+        function fullScreen() {
+
+            var winWidth = $(window).width();
+            var winHeight = $(window).height();
+
+            var _map = $("#map");
+            _map.css("top", "0")
+                      .css("left", "0")
+                      .css("position", "fixed")
+                      .css("z-index", "95959")
+                      .width(winWidth).height(winHeight);
         }
+
     </script>
     </form>
 </body>

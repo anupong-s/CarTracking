@@ -1,14 +1,4 @@
-﻿var smarto = function () { };
-smarto.fitBoundZoomout = 1;
-smarto.markers = new Array();
-smarto.rightClick = 2;
-smarto.mapSourceEnum = {
-    EcartMaps: 0,
-    GoogleMaps: 1,
-    YahooMaps: 2
-};
-
-var gDrag = {
+﻿var gDrag = {
     jq: {},
     item: {},
     status: 0,
@@ -16,49 +6,126 @@ var gDrag = {
     x: 0
 };
 
-smarto.isOpenPopup = false;
-smarto.pinId = 0;
-smarto.freezeMap = false; //ยกเลิกการ set center เวลา tracking
-smarto.route = {
-    geometry: new Array(),
-    waypoints: new Array(),
-    addGeometry: function (paths) {
-        this.geometry = new Array();
+H.Map.include({
+    btnStreetViewId: null,
+    initButtonStreetview: function() {
 
-        for (var i = 0; i < paths.length; i++) {
-            this.geometry.push([paths[i].k, paths[i].A]);
-        }
-    },
-    addWaypoints: function (start, end) {
-        this.waypoints = new Array();
-        this.waypoints.push(start);
-        this.waypoints.push(end);
-    },
-    routeSelected: function (map) {
-        this._map = map;
-        if (this._line) {
-            var layers = this._line._layers;
-            for (var v = 0; v < layers.length; v++) {
-                this._map.removeLayer(layers[v]);
-            }
+        if (this.btnStreetViewId) {
+            return false;
         }
 
-        this._line = new L.Routing.Line(smarto.route);
-        this._line.onAdd(map);
-        this._line._route.geometry = new Array();
-        this.geometry = new Array();
+        var dv = L.DomUtil.create("div", "sd-btn-sv");
+        dv.id = this.btnStreetViewId = "btnstrvw";
+
+        L.DomEvent.on(dv, "click", function() {
+            smarto.vehicles.enableStreetview();
+            this.createStreetViewDOM();
+        }, this);
+
+        var container = map._controlContainer;
+        L.DomUtil.addClass(dv, "leaflet-control");
+        container.appendChild(dv);
     },
-    remove: function (map) {
-        this._map = map;
-        if (this._line) {
-            var layers = this._line._layers;
-            for (var v = 0; v < layers.length; v++) {
-                this._map.removeLayer(layers[v]);
-            }
+    createStreetViewDOM: function() {
+        var container = $("#form1");
+        var dv = L.DomUtil.create("div", "hd-strv-main");
+        dv.id = 'dvStreetview';
+        
+        var dvStrvwDrag = L.DomUtil.create("div", "hd-strv-drag");
+
+        /*
+        var dvClose = L.DomUtil.create("div", "hd-strv-close");
+        dvClose.onclick = function() {
+            smarto.vehicles.disableStreetview();
+            $(".hd-strv-main").remove();
+        };
+        */
+
+        dv.appendChild(dvStrvwDrag);
+        container.append(dv);
+
+        $(".hd-strv-main").draggable({ containment: '#map_contain', handle: '.hd-strv-drag' });  
+    },
+    removeBtnStreetView: function() {
+
+        var btnStreetView = $("#btnstrvw");
+        if (btnStreetView != null) {
+            $("#btnstrvw").remove();
+            this.btnStreetViewId = null;
+            smarto.vehicles.stopRealTimeTracking();
+            smarto.vehicles.disableStreetview();
+        }
+        
+        if (smarto.vehicles._enableStreetView) {
+            $("#dvStreetview").remove();
         }
     }
+});
 
+/*
+H.Map.addInitHook(function () {    
+    this.initButtonStreetview();
+});
+*/
+
+var smarto = {
+    fitBoundZoomout: 1,
+    markers: new Array(),
+    rightClick: 2,
+    mapSourceEnum: { EcartMaps: 0, GoogleMaps: 1, YahooMaps: 2 },
+    isOpenPopup: false,
+    pinId: 0,
+    freezeMap: false, //ยกเลิกการ set center เวลา tracking
+    route: {
+        geometry: new Array(),
+        waypoints: new Array(),
+        addGeometry: function (paths) {
+            this.geometry = new Array();
+
+            for (var i = 0; i < paths.length; i++) {
+                this.geometry.push([paths[i].k, paths[i].A]);
+            }
+        },
+        addWaypoints: function (start, end) {
+            this.waypoints = new Array();
+            this.waypoints.push(start);
+            this.waypoints.push(end);
+        },
+        routeSelected: function (map) {
+            this._map = map;
+            if (this._line) {
+                var layers = this._line._layers;
+                for (var v = 0; v < layers.length; v++) {
+                    this._map.removeLayer(layers[v]);
+                }
+            }
+
+            this._line = new L.Routing.Line(smarto.route);
+            this._line.onAdd(map);
+            this._line._route.geometry = new Array();
+            this.geometry = new Array();
+        },
+        remove: function (map) {
+            this._map = map;
+            if (this._line) {
+                var layers = this._line._layers;
+                for (var v = 0; v < layers.length; v++) {
+                    this._map.removeLayer(layers[v]);
+                }
+            }
+        }
+    },
+    Pin: {
+        wasDropPin: false,
+        getAllPins: function () {
+            __doPostBack('BtnRefreshGridViewPin', '');
+        },
+        clearPins: function () {
+            __doPostBack('BtnClearGridViewPin', '');
+        }
+    },
 };
+
 smarto.vehicles = {
     _vehicleId: 0,
     _markers: new Array(), //ใช้สำหรับ vehicle detail
@@ -69,6 +136,7 @@ smarto.vehicles = {
         currentPoint: []
     },
     _realTimeInterval: null,
+    _enableStreetView: false,
     getVehicle: function () {
         $.ajax({
             type: "POST",
@@ -202,6 +270,7 @@ smarto.vehicles = {
             destination: end,
             travelMode: google.maps.TravelMode.DRIVING
         };
+
         /*
         directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
@@ -268,9 +337,12 @@ smarto.vehicles = {
     selectVehicleId: function (id) {
         this._vehicleId = id;
     },
+    stopRealTimeTracking: function() {
+        clearTimeout(this._realTimeInterval);
+    },
     realTimeTracking: function () {
         if (this._vehicleId <= 0) {
-            clearInterval(this._realTimeInterval);
+            this.stopRealTimeTracking();
             alert('Please select vehicle for tracking.');
             return false;
         }
@@ -282,6 +354,7 @@ smarto.vehicles = {
             url: "Tracking.aspx/GetLastKnowLocation",
             data: "{ 'deviceSn': '" + _marker.DevSn + "'}",
             context: this,
+            crossDomain: false,
             contentType: "application/json",
             success: function (a) {
                 this._realTimeSuccess(a.d);
@@ -305,35 +378,39 @@ smarto.vehicles = {
             this.directionPath(marker.Id);
         }
 
-        var latlngs = new Array();
-        var latlng = [d.Lat, d.Lng];
-        if (this._latlngs.currentPoint.length <= 0) {
-            this._latlngs.currentPoint = latlng;
-            latlngs.push(latlng);
-        } else {
-            this._latlngs.lastPoint = this._latlngs.currentPoint;
-            this._latlngs.currentPoint = latlng;
-            latlngs.push(this._latlngs.lastPoint);
-            latlngs.push(this._latlngs.currentPoint);
-            var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
-        }
-
+        this.drawPolyline(d.Lat, d.Lng);
+        this._realTimeInterval = setTimeout('smarto.vehicles.realTimeTracking()', 10000);
         this.streetView(d);
     },
-    streetView: function (m) {        
-        var fenway = new google.maps.LatLng(m.Lat, m.Lng);
-        var panoramaOptions = {
-            position: fenway,
-            pov: {
-                heading: m.Hd,
-                pitch: 0
-            },
-            visible: true
-        };
+    streetView: function (m) {
+        
+        map.initButtonStreetview();
 
-        $("#dvStreetview").show();
-        var a = document.getElementById("dvStreetview");        
-        var e = new google.maps.StreetViewPanorama(a, panoramaOptions);
+        var a = document.getElementById("dvStreetview");
+        if (a == null && this._enableStreetView) {            
+            map.createStreetViewDOM();
+        }
+
+        if (this._enableStreetView) {
+            var fenway = new google.maps.LatLng(m.Lat, m.Lng);
+            var panoramaOptions = {
+                position: fenway,
+                visible: true,
+                pov: {
+                    heading: m.Hd,
+                    pitch: 0
+                }
+            };
+
+            a = document.getElementById("dvStreetview");
+            var e = new google.maps.StreetViewPanorama(a, panoramaOptions);
+        }
+    },    
+    enableStreetview: function() {
+        this._enableStreetView = true;
+    },
+    disableStreetview: function() {
+        this._enableStreetView = false;
     },
     getMarkerInClusterLayer: function (leafletId) {
         var result = null;
@@ -348,15 +425,62 @@ smarto.vehicles = {
             }
         }
         return result;
-    }
-};
-smarto.Pin = {
-    wasDropPin: false,
-    getAllPins: function () {
-        __doPostBack('BtnRefreshGridViewPin', '');
     },
-    clearPins: function () {
-        __doPostBack('BtnClearGridViewPin', '');
+    historyTracking: function () {
+
+        if (this.pinId > 0) {
+            this.removeMarkerById(pinId);    
+        }
+
+        map.removeBtnStreetView();
+        draggablePin.hidePin();
+        dvVehicleDetail.hide();
+
+
+        if (this._vehicleId <= 0) {
+            alert('Please select vehicle for tracking.');
+            return false;
+        }
+
+        var _marker = getMarkerById(this._vehicleId);
+
+        $.ajax({
+            type: "POST",
+            url: "Tracking.aspx/GetHistories",
+            data: "{ 'deviceSn': '" + _marker.DevSn + "'}",
+            context: this,
+            crossDomain: false,
+            contentType: "application/json",
+            success: function (a) {
+                this._historyTrackingSuccess(a.d);
+            },
+            error: function (xhr) {
+                var err = eval("(" + xhr.responseText + ")");
+                alert(err.Message);
+            }
+        });
+    },
+    _historyTrackingSuccess: function(d) {
+        for (var i = 0; i < d.length; i++) {
+            var p = d[i];
+            var marker = this.createMarker(p);
+            this.drawPolyline(p.Lat, p.Lng);
+        }        
+    },
+    drawPolyline: function(lat, lng) {
+
+        var latlngs = new Array();
+        var latlng = [lat, lng];
+        if (this._latlngs.currentPoint.length <= 0) {
+            this._latlngs.currentPoint = latlng;
+            //latlngs.push(latlng);
+        } else {
+            this._latlngs.lastPoint = this._latlngs.currentPoint;
+            this._latlngs.currentPoint = latlng;
+            latlngs.push(this._latlngs.lastPoint);
+            latlngs.push(this._latlngs.currentPoint);
+            var polyline = L.polyline(latlngs, { color: '#3ebcd3', opacity: 0.5 }).addTo(map);
+        }
     }
 };
 

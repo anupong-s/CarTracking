@@ -9,9 +9,8 @@
 		options: {
 			styles: [
 				{color: 'black', opacity: 0.15, weight: 7},
-				{color: 'white', opacity: 0.8, weight: 4},
-				{color: '#3ebcd3', opacity: 0.5, weight: 7}
-				//{color: 'orange', opacity: 1, weight: 2}
+				{color: 'white', opacity: 0.8, weight: 4},				
+				{color: 'orange', opacity: 1, weight: 2}
 			],
 			addWaypoints: true
 		},
@@ -36,7 +35,7 @@
 			this._layers = [];
 
 		    //var pin = map._layers[smarto.pinId];
-		    pl = L.polyline(geom, { color: '#3ebcd3', opacity: 0.5, weight: 7 });
+		    pl = L.polyline(geom, { color: '#36ca27', opacity: 0.5, weight: 7 });
             //var marker2 = L.marker([this._route.waypoints[1][0], this._route.waypoints[1][1]]);
 		    //var marker1 = this._route.waypoints[0];
 		    //var marker2 = this._route.waypoints[1];

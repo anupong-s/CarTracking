@@ -89,6 +89,8 @@
     <Content Include="hobbit\hobbit-min.js" />
     <Content Include="hobbit\hobbit1.js" />
     <Content Include="hobbit\Hook.js" />
+    <Content Include="hobbit\images\btnStreetView.jpg" />
+    <Content Include="hobbit\images\btnStreetView_hover.jpg" />
     <Content Include="hobbit\images\loadingGetPin.gif" />
     <Content Include="hobbit\images\blank.png" />
     <Content Include="hobbit\images\icoclose.png" />
@@ -130,6 +132,7 @@
     <Content Include="Scripts\jquery-1.4.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.4.1.js" />
     <Content Include="Scripts\jquery-1.4.1.min.js" />
+    <Content Include="TestCreateDOM.aspx" />
     <Content Include="TestGrid.aspx" />
     <Content Include="Tracking.aspx" />
     <Content Include="Web.config">
@@ -178,6 +181,7 @@
     <Compile Include="Account\Register.aspx.designer.cs">
       <DependentUpon>Register.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Classes\EPeriods.cs" />
     <Compile Include="Classes\GenerateByIndex.cs" />
     <Compile Include="Classes\GeoPointInfo.cs" />
     <Compile Include="Classes\Partition.cs" />
@@ -208,6 +212,13 @@
     </Compile>
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="TestCreateDOM.aspx.cs">
+      <DependentUpon>TestCreateDOM.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TestCreateDOM.aspx.designer.cs">
+      <DependentUpon>TestCreateDOM.aspx</DependentUpon>
     </Compile>
     <Compile Include="TestGrid.aspx.cs">
       <DependentUpon>TestGrid.aspx</DependentUpon>
