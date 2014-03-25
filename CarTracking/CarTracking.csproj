@@ -89,6 +89,10 @@
     <Content Include="hobbit\hobbit-min.js" />
     <Content Include="hobbit\hobbit1.js" />
     <Content Include="hobbit\Hook.js" />
+    <Content Include="hobbit\images\btnCloseST.jpg" />
+    <Content Include="hobbit\images\btnCloseST_hover.jpg" />
+    <Content Include="hobbit\images\btnMove.jpg" />
+    <Content Include="hobbit\images\btnMove_hover.jpg" />
     <Content Include="hobbit\images\btnStreetView.jpg" />
     <Content Include="hobbit\images\btnStreetView_hover.jpg" />
     <Content Include="hobbit\images\loadingGetPin.gif" />

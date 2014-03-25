@@ -36,7 +36,7 @@
     <style type="text/css">
         .hd-strv-main
         {
-            background-color: red;
+            background-color: #e5e3df;
             position: absolute;
             width: 300px;
             height: 300px;
@@ -47,25 +47,35 @@
         .hd-strv-drag
         {
             top: 0;
-            right: 0;
-            width: 30px;
+            right: 45px;
+            width: 24px;
+            height: 18px;
             position: absolute;
-            height: 30px;
-            z-index: 9999;
-            background-color: black;
+            z-index: 9999; /*background-color: black;*/
+            background-image: url(hobbit/images/btnMove.jpg);
             float: left;
         }
+        .hd-strv-drag:hover
+        {
+            background-image: url(hobbit/images/btnMove_hover.jpg);
+        }
+        
         .hd-strv-close
         {
             top: 0;
             right: 0;
-            width: 30px;
+            width: 20px;
+            height: 18px;
             position: absolute;
-            height: 30px;
-            z-index: 9999;
-            background-color: black;
+            z-index: 9999; /*background-color: black;*/
+            background-image: url(hobbit/images/btnCloseST.jpg);
             float: left;
         }
+        .hd-strv-close:hover
+        {
+            background-image: url(hobbit/images/btnCloseST_hover.jpg);
+        }
+        
         .sd-btn-sv
         {
             right: 0px;

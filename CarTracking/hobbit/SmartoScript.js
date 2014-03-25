@@ -32,16 +32,15 @@ H.Map.include({
         dv.id = 'dvStreetview';
         
         var dvStrvwDrag = L.DomUtil.create("div", "hd-strv-drag");
+        var dvStrvwClose = L.DomUtil.create("div", "hd-strv-close");
 
-        /*
-        var dvClose = L.DomUtil.create("div", "hd-strv-close");
-        dvClose.onclick = function() {
+        dvStrvwClose.onclick = function() {
             smarto.vehicles.disableStreetview();
             $(".hd-strv-main").remove();
         };
-        */
-
+        
         dv.appendChild(dvStrvwDrag);
+        dv.appendChild(dvStrvwClose);
         container.append(dv);
 
         $(".hd-strv-main").draggable({ containment: '#map_contain', handle: '.hd-strv-drag' });  
