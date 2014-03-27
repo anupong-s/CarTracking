@@ -48,7 +48,7 @@ namespace CarTracking
                 switch ((EPeriods)val)
                 {
                     case EPeriods.CurrentJourney:
-                        script = "smarto.vehicles.realTimeTracking();";
+                        script = "smarto.vehicles.initRealTimeTracking();";
                         item.Attributes.Add("onclick", script);
                         break;
                     case EPeriods.LastJourney:

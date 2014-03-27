@@ -164,6 +164,7 @@ namespace CarTracking
 
         public IEnumerable<GeoPointInfo> GetHistoriesTracking(string deviceSn)
         {
+            GeopointIndex = new Dictionary<string, int>();
             using (var ctx = new CarTrackingEntities())
             {
                 var points = ctx.GeoPoints.Where(s => s.Vehicle.DeviceSn == deviceSn).ToList();

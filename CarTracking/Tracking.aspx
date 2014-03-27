@@ -47,8 +47,8 @@
         .hd-strv-drag
         {
             top: 0;
-            right: 45px;
-            width: 24px;
+            right: 24px;
+            width: 20px;
             height: 18px;
             position: absolute;
             z-index: 9999; /*background-color: black;*/
@@ -78,7 +78,7 @@
         
         .sd-btn-sv
         {
-            right: 0px;
+            right: 0;
             bottom: 86px;
             width: 20px;
             height: 40px;
@@ -142,6 +142,7 @@
         <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
             background-repeat: round">
         </div>
+        <input type="button" value="Clear history" onclick="clearHistory();" />
     </div>
     <div id="dialog-selected-pin" title="" style="z-index: 30000">
     </div>
@@ -260,6 +261,7 @@
             smarto.route.remove(map);
             smarto.vehicles.calculateDistanceFromPin(smarto.pinId);
             smarto.vehicles.showDetail(dvVehicleDetail);
+            smarto.vehicles.directionPath(smarto.route.markerId);
         };
 
         dvMap.droppable({
@@ -491,6 +493,11 @@
                       .css("position", "fixed")
                       .css("z-index", "95959")
                       .width(winWidth).height(winHeight);
+        }
+
+        function clearHistory() {
+            smarto.vehicles.removeMarkerByType(smarto.markerType.HIS);
+            smarto.vehicles.removePolyLines();
         }
 
     </script>

@@ -27,6 +27,7 @@ namespace CarTracking
             Lat = p.Latitude;
             Lng = p.Longitude;
             Hd = p.Heading;
+            Lp = p.Vehicle.LicensePlate;
         }
 
     }
