@@ -101,7 +101,7 @@
             <div align="right">
                 <input id="chkFreeze" type="checkbox" />Freeze map
             </div>
-            <div class="customPeriod">
+            <div class="vehiclePeriod">
                 <asp:RadioButtonList ID="rbPeriods" runat="server">
                     <asp:ListItem Value="1">Current journey</asp:ListItem>
                     <asp:ListItem Value="2">Last journey</asp:ListItem>
@@ -110,6 +110,10 @@
                     <asp:ListItem Value="5">Yesterday</asp:ListItem>
                     <asp:ListItem Value="6">Custom period</asp:ListItem>
                 </asp:RadioButtonList>
+                <div id="customPeriod" style="display: none;">
+                    <asp:Button runat="server" ID="btnExportKML" Text="KML" OnClientClick="return  smarto.vehicles.exportKml();"
+                        OnClick="btnExportKML_Click" />
+                </div>
             </div>
             <div align="center">
                 <img id="draggablePin" alt="pin" style="width: 18px; height: 33px; z-index: 999;"
@@ -139,10 +143,12 @@
         </div>
         <div style="clear: both">
         </div>
-        <div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
+        <%--<div id="gmarker" style="width: 15px; height: 15px; z-index: 10000; background-image: url('hobbit/images/ie-spacer.gif');
+            background-repeat: round">
+        </div>--%>
+        <div id="gmarker" style="width: 25px; height: 41px; z-index: 10000; background-color: red;
             background-repeat: round">
         </div>
-        <input type="button" value="Clear history" onclick="clearHistory();" />
     </div>
     <div id="dialog-selected-pin" title="" style="z-index: 30000">
     </div>
@@ -211,7 +217,7 @@
 
         gDrag.jq = $('#gmarker');
 
-        map = H.map("map");
+        map = H.map("map").setBasemap(smarto.mapSourceEnum.EcartMaps).setMaxZoom(20);
 
         dvMap.addPin = function(lat, lng) {
 
@@ -231,22 +237,12 @@
             pin.addEventListener('mouseover', function () {
                     if (!gDrag.jq.hasClass('ui-draggable-dragging')) {
 
+                        gDrag.jq.draggable("enable");
+
                         if (!smarto.isOpenPopup) {
                             smarto.isOpenPopup = true;
                             pin.openPopup();
                         }
-
-                        gDrag.jq.mouseover(function () {
-                            if (!smarto.isOpenPopup) {
-                                smarto.isOpenPopup = true;
-                                pin.openPopup();
-                            }
-                        });
-
-                        gDrag.jq.mouseout(function () {
-                            pin.closePopup();
-                            smarto.isOpenPopup = false;
-                        });
 
                         gDrag.item = this;
                         gDrag.jq.offset({
@@ -254,9 +250,31 @@
                             left: gDrag.x - 10
                         });
 
-                        gDrag.jq.css('cursor', 'move');
+                        gDrag.jq.css('cursor', 'pointer');
                     }
                 });
+
+            gDrag.jq.mouseover(function() {
+                if (!smarto.isOpenPopup) {
+                    smarto.isOpenPopup = true;
+                    var mypin = map._layers[smarto.pinId];
+                    var left = this.offsetLeft;
+                    if (mypin != null && left != 0) {
+                        mypin.openPopup();
+                    }
+                }
+            });
+
+            gDrag.jq.mouseout(function() {
+                pin.closePopup();
+                smarto.isOpenPopup = false;
+                gDrag.jq.offset({
+                    top: $(window).height() - $("#gmarker").height(),
+                    left:0
+                });
+                gDrag.jq.css('cursor', '');
+                gDrag.jq.draggable("disable");
+            });
 
             smarto.route.remove(map);
             smarto.vehicles.calculateDistanceFromPin(smarto.pinId);
@@ -363,6 +381,7 @@
                 btnRefresh.hide();                    
                 smarto.vehicles.selectVehicleId(data.id);
             } else {
+                smarto.vehicles.selectVehicleId(0);
                 btnRefresh.show();                
                 $("#dvStreetview").hide();
             }            
@@ -469,6 +488,7 @@
                         smarto.vehicles.clearVehicleDetail();
                         smarto.route.remove(map);
                         draggablePin.showPin();
+                        smarto.isOpenPopup = false;
                         btnRefresh.show();
                         smarto.vehicles.hideDetail(dvVehicleDetail);
                     }

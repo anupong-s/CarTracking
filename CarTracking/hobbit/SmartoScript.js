@@ -144,7 +144,12 @@ var smarto = {
         _vehicleId: 0,
         _markers: new Array(), //ใช้สำหรับ vehicle detail
         _isFreezeCenter: false,
-        _cluster: new L.MarkerClusterGroup(),
+        _cluster: new L.MarkerClusterGroup({
+            maxClusterRadius: 60,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: false
+        }),
         _latlngs: {
             lastPoint: [],
             currentPoint: []
@@ -152,6 +157,10 @@ var smarto = {
         _realTimeInterval: null,
         _enableStreetView: false,
         _polyLines: new Array(),
+        options: {
+            showLable: false,
+            cluster: false
+        },
         getVehicle: function () {
             $.ajax({
                 type: "POST",
@@ -183,17 +192,27 @@ var smarto = {
                 }
             });
         },
-        createMarker: function (g) {
-            var marker = L.marker([g.Lat, g.Lng])
-                .bindLabel(g.Lp, { noHide: true })
-                .showLabel();
+        createMarker: function (g, options) {
+            if (options == null) {
+                options = this.options;
+            }
 
+            var marker = L.marker([g.Lat, g.Lng]);
             marker.Id = g.Id;
             marker.Lp = g.Lp;
             marker.DevSn = g.DevSn;
             marker.Type = g.Type;
-            marker.addTo(this._cluster);
-            map.addLayer(this._cluster);
+
+            if (options.showLable) {
+                marker.bindLabel(g.Lp, { noHide: true }).showLabel();
+            }
+
+            if (options.cluster) {
+                marker.addTo(this._cluster);
+                map.addLayer(this._cluster);
+            } else {
+                marker.addTo(map);
+            }
 
             smarto.markers.push(marker);
             return marker;
@@ -222,23 +241,35 @@ var smarto = {
             }
         },
         removeMarkerByType: function (t) {
-            var cnt = smarto.markers.length;
-            var clusterLayer = map._layers[this._cluster._leaflet_id];
-            var layers = clusterLayer.getLayers();
 
-            for (var i = layers.length - 1; i >= 0; i--) {
-                var m = layers[i];
-                if (m.Type == 1 || m.Type == 2) {
-                    clusterLayer.removeLayer(m);
-                    /*
-                    var layer = map._layers[m._leaflet_id];
-                    if (layer == null || layer == "undefined") {
-                    layer = this.getMarkerInClusterLayer(m._leaflet_id);                        
-                                            
+            var clusterLayer = map._layers[this._cluster._leaflet_id];
+            if (clusterLayer != null && clusterLayer.getLayers().length > 0) {
+                var layers = clusterLayer.getLayers();
+
+                for (var i = layers.length - 1; i >= 0; i--) {
+                    var m = layers[i];
+                    if (m.Type == this.parent.markerType.RT || m.Type == this.parent.markerType.HIS) {
+                        clusterLayer.removeLayer(m);
+                        map.removeLayer(m);
+
+                        $.grep(smarto.markers, function (e, indexOfArray) {
+                            if (e == null) {
+                                return;
+                            }
+
+                            if (e._leaflet_id == m._leaflet_id) {
+                                smarto.markers.splice(indexOfArray, 1);
+                            }
+                        });
                     }
-                    */
-                    map.removeLayer(m);
-                    smarto.markers.splice(i, 1);
+                }
+            } else {
+                // ถ้าไม่ได้ cluster            
+                for (var x = smarto.markers.length - 1; x >= 0; x--) {
+                    var m = smarto.markers[x];
+                    if (m.Type == this.parent.markerType.RT || m.Type == this.parent.markerType.HIS) {
+                        smarto.markers.splice(x, 1);
+                    }
                 }
             }
         },
@@ -261,6 +292,7 @@ var smarto = {
 
             this._latlngs.lastPoint = [];
             this._latlngs.currentPoint = [];
+            this._polyLines = new Array();
         },
         addDistance: function (id, lp, val, text) {
             this._markers.push({ Id: id, Lp: lp, val: val, Text: text });
@@ -402,6 +434,7 @@ var smarto = {
             clearTimeout(this._realTimeInterval);
         },
         initRealTimeTracking: function () {
+            this.customPeriodClose();
             this.removeMarkerByType(smarto.markerType.RT);
             this.removePolyLines();
             this.realTimeTracking();
@@ -496,6 +529,7 @@ var smarto = {
             return result;
         },
         historyTracking: function () {
+            this.customPeriodClose();
 
             if (this.pinId > 0) {
                 this.removeMarkerById(pinId);
@@ -505,7 +539,6 @@ var smarto = {
             map.removeStreetViewDOM();
             draggablePin.hidePin();
             dvVehicleDetail.hide();
-
 
             if (this._vehicleId <= 0) {
                 alert('Please select vehicle for tracking.');
@@ -539,7 +572,7 @@ var smarto = {
             for (var i = 0; i < d.length; i++) {
                 var p = d[i];
                 p.Type = this.parent.markerType.HIS;
-                this.createMarker(p);
+                this.createMarker(p, { cluster: true });
                 this.drawPolyline(p.Lat, p.Lng);
             }
         },
@@ -558,6 +591,19 @@ var smarto = {
                 var polyline = L.polyline(latlngs, { color: '#3ebcd3', opacity: 0.5 }).addTo(map);
                 this._polyLines.push(polyline._leaflet_id);
             }
+        },
+        customPeriod: function () {
+            $("#customPeriod").show();
+        },
+        customPeriodClose: function () {
+            $("#customPeriod").hide();
+        },
+        exportKml: function () {
+            if (this._vehicleId <= 0) {
+                alert('Please select vehicle befor export to kml file.');
+                return false;
+            }
+            return true;
         }
     },
     init: function () {
@@ -581,7 +627,13 @@ function addMarker() {
     map.addLayer(d);
 }
 
-var cluster1 = new L.MarkerClusterGroup();
+var cluster1 = new L.MarkerClusterGroup({
+    maxClusterRadius: 200,
+    spiderfyOnMaxZoom: false,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: false
+});
+
 function addCluster() {
 
     L.marker([13.756, 100.566]).addTo(cluster1);

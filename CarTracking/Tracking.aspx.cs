@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Lifetime;
+using System.Text;
 using System.Web;
 using System.Web.Script.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Services;
+using System.IO;
 
 namespace CarTracking
 {
@@ -55,7 +57,10 @@ namespace CarTracking
                     case EPeriods.Last12Hours:
                     case EPeriods.Last24Hours:
                     case EPeriods.Yesterday:
+                        item.Attributes.Add("onclick", script);
+                        break;
                     case EPeriods.CustomPeriod:
+                        script = "smarto.vehicles.customPeriod();";
                         item.Attributes.Add("onclick", script);
                         break;
                     default:
@@ -148,6 +153,24 @@ namespace CarTracking
             }
         }
 
+        protected void btnExportKML_Click(object sender, EventArgs e)
+        {
+            var index = e1.SelectedIndex;
+            var vehicleId = e1.Items[index].Value;
+            var licensePlate = e1.Items[index].Text;
+            var filename = HttpUtility.UrlEncode(licensePlate, Encoding.UTF8);
+
+            var ms = Presenter.ExportToKmlFile(vehicleId, licensePlate);
+            var bytesInStream = ms.ToArray(); // simpler way of converting to array
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.HeaderEncoding = Encoding.UTF8;
+            Response.ContentType = "text/xml";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}.kml", filename));
+            Response.BinaryWrite(bytesInStream);
+            Response.End();
+        }
+
         #region Web Method
 
         [WebMethod]
@@ -195,5 +218,7 @@ namespace CarTracking
         }
 
         #endregion
+
+
     }
 }
