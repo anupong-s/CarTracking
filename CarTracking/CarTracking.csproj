@@ -63,6 +63,7 @@
     <Content Include="Account\ChangePasswordSuccess.aspx" />
     <Content Include="Account\Login.aspx" />
     <Content Include="Account\Register.aspx" />
+    <Content Include="Cluster\Hmap.aspx" />
     <Content Include="DLL\Telerik.Web.Design.dll" />
     <Content Include="DLL\Telerik.Web.UI.dll" />
     <Content Include="dragImage.aspx" />
@@ -190,8 +191,18 @@
     <Compile Include="Classes\GeoPointInfo.cs" />
     <Compile Include="Classes\Partition.cs" />
     <Compile Include="Classes\PinDto.cs" />
+    <Compile Include="Classes\TrackingBase.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Classes\TrackingPresenter.cs" />
     <Compile Include="Classes\VehicleDto.cs" />
+    <Compile Include="Cluster\Hmap.aspx.cs">
+      <DependentUpon>Hmap.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Cluster\Hmap.aspx.designer.cs">
+      <DependentUpon>Hmap.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
