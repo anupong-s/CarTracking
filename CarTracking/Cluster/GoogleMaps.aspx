@@ -28,7 +28,7 @@
     <form id="form1" runat="server">
     <div id="map_canvas">
     </div>
-    <div style="display: inline-table; width: 80px">
+    <div style="display: inline-table; width: 120px">
         Current Zoom: <span id="sZoom"></span>
     </div>
     <div style="display: inline-table">

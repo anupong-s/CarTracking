@@ -32,12 +32,16 @@
     <form id="form1" runat="server">
     <div id="map">
     </div>
-    <div style="display: inline-table; width: 80px">
+    <div style="display: inline-table; width: 120px">
         Current Zoom: <span id="sZoom"></span>
     </div>
     <div style="display: inline-table">
-        Max Zoom:
-        <input type="text" id="txtMaxZoom" value="14" style="width: 50px" />
+        Disable cluster at zoom:
+        <input type="text" id="txtDisableCluster" value="14" style="width: 50px" />
+    </div>
+    <div style="display: inline-table">
+        Max zoom:
+        <input type="text" id="txtMaxZoom" value="15" style="width: 50px" />
     </div>
     <input type="button" id="btnRefresh" value="Refresh" onclick="getGeopoints()" />
     </form>
@@ -50,9 +54,8 @@
     var options = { showLable: false, cluster: false };
 
     map = H.map("map")
-           .setBasemap(eCartMaps)
-           .setCenter(L.latLng(13.728841, 100.580452))
-           .setMaxZoom(20);
+        .setBasemap(eCartMaps)
+        .setCenter(L.latLng(13.728841, 100.580452));
 
     $(document).ready(function () {
         getGeopoints();
@@ -62,6 +65,8 @@
     map.on('zoomend', function () { $("#sZoom").text(map.getZoom()); });
 
     function getGeopoints() {
+        var maxZoom = $("#txtMaxZoom").val();
+        map.setMaxZoom(parseInt(maxZoom));
 
         $.ajax({
             type: "POST",
@@ -89,7 +94,7 @@
         //และจะสามารถใช้ feature นี้ได้ก็ตอน zoom จนสุด (Max zoom)
         clusters = new L.MarkerClusterGroup({
             //maxClusterRadius: 15,
-            disableClusteringAtZoom: $("#txtMaxZoom").val(),
+            disableClusteringAtZoom: $("#txtDisableCluster").val(),
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
             zoomToBoundsOnClick: false
