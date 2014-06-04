@@ -29,7 +29,7 @@
     <div id="map_canvas">
     </div>
     <div style="display: inline-table; width: 80px">
-        Zoom: <span id="sZoom"></span>
+        Current Zoom: <span id="sZoom"></span>
     </div>
     <div style="display: inline-table">
         Disable cluster at zoom:

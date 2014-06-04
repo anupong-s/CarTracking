@@ -33,7 +33,7 @@
     <div id="map">
     </div>
     <div style="display: inline-table; width: 80px">
-        Zoom: <span id="sZoom"></span>
+        Current Zoom: <span id="sZoom"></span>
     </div>
     <div style="display: inline-table">
         Max Zoom:
