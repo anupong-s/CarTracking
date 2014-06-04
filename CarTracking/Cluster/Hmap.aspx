@@ -30,25 +30,36 @@
 </head>
 <body>
     <form id="form1" runat="server">
-    <asp:ScriptManager ID="ScriptManager1" runat="server">
-    </asp:ScriptManager>
     <div id="map">
     </div>
-    <input type="button" value="Show Data" onclick="getGeopoints();" />
+    <div style="display: inline-table; width: 80px">
+        Zoom: <span id="sZoom"></span>
+    </div>
+    <div style="display: inline-table">
+        Max Zoom:
+        <input type="text" id="txtMaxZoom" value="14" style="width: 50px" />
+    </div>
+    <input type="button" id="btnRefresh" value="Refresh" onclick="getGeopoints()" />
     </form>
 </body>
 <script type="text/javascript">
     var eCartMaps = 0;
-    var markers = new Array();
-    var clusters = new L.MarkerClusterGroup({
-        maxClusterRadius: 20,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: false
-    });
+    var markers = [];
+
+    var clusters;
     var options = { showLable: false, cluster: false };
 
-    map = H.map("map").setBasemap(eCartMaps).setMaxZoom(20);
+    map = H.map("map")
+           .setBasemap(eCartMaps)
+           .setCenter(L.latLng(13.728841, 100.580452))
+           .setMaxZoom(20);
+
+    $(document).ready(function () {
+        getGeopoints();
+        $("#sZoom").text(map.getZoom());
+    });
+
+    map.on('zoomend', function () { $("#sZoom").text(map.getZoom()); });
 
     function getGeopoints() {
 
@@ -59,7 +70,7 @@
             context: this,
             crossDomain: false,
             contentType: "application/json",
-            success: function (a) {                
+            success: function (a) {
                 OnSuccess(a.d);
             },
             error: function (xhr) {
@@ -67,13 +78,23 @@
                 alert(err.Message);
             }
         });
-
     }
 
     function OnSuccess(d) {
-     
-        clusters.clearLayers();
-        
+        if (clusters) {
+            clusters.clearLayers();
+        }
+
+        //spiderfyOnMaxZoom: true ->ถ้ามี Point ที่จุดเดียวกันหลายๆอัน เมื่อทำการ Click มันจะแตกจุดออกมาให้เห็น
+        //และจะสามารถใช้ feature นี้ได้ก็ตอน zoom จนสุด (Max zoom)
+        clusters = new L.MarkerClusterGroup({
+            //maxClusterRadius: 15,
+            disableClusteringAtZoom: $("#txtMaxZoom").val(),
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: false
+        });
+
         for (var i = 0; i < d.length; i++) {
             var g = d[i];
             var marker = L.marker([g.Lat, g.Lng]);

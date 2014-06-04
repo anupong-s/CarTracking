@@ -63,6 +63,7 @@
     <Content Include="Account\ChangePasswordSuccess.aspx" />
     <Content Include="Account\Login.aspx" />
     <Content Include="Account\Register.aspx" />
+    <Content Include="Cluster\GoogleMaps.aspx" />
     <Content Include="Cluster\Hmap.aspx" />
     <Content Include="DLL\Telerik.Web.Design.dll" />
     <Content Include="DLL\Telerik.Web.UI.dll" />
@@ -129,6 +130,8 @@
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\jquery-1.11.0.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="Scripts\markerclusterer.js" />
+    <Content Include="Scripts\overlapMarkerSpiderfy.min.js" />
     <Content Include="Scripts\select2.css" />
     <Content Include="Scripts\select2.js" />
     <Content Include="Styles\Site.css" />
@@ -196,6 +199,13 @@
     </Compile>
     <Compile Include="Classes\TrackingPresenter.cs" />
     <Compile Include="Classes\VehicleDto.cs" />
+    <Compile Include="Cluster\GoogleMaps.aspx.cs">
+      <DependentUpon>GoogleMaps.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Cluster\GoogleMaps.aspx.designer.cs">
+      <DependentUpon>GoogleMaps.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Cluster\Hmap.aspx.cs">
       <DependentUpon>Hmap.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
