@@ -231,7 +231,7 @@
         //spiderfyOnMaxZoom: true ->ถ้ามี Point ที่จุดเดียวกันหลายๆอัน เมื่อทำการ Click มันจะแตกจุดออกมาให้เห็น
         //และจะสามารถใช้ feature นี้ได้ก็ตอน zoom จนสุด (Max zoom)
         clusters = new L.MarkerClusterGroup({
-            //maxClusterRadius: 15,
+            maxClusterRadius: 77,
             disableClusteringAtZoom: $("#txtDisableCluster").val(),
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
