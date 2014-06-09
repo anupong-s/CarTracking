@@ -176,7 +176,7 @@
         Max zoom:
         <input type="text" id="txtMaxZoom" value="15" style="width: 50px" />
     </div>
-    <span>
+    <span>Marker type:
         <input id="Radio1" type="radio" name="cluster" checked="checked" />A</span>
     <span>
         <input id="Radio2" type="radio" name="cluster" />B</span> <span>
