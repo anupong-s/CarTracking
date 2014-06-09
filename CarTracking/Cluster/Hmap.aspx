@@ -26,6 +26,139 @@
             width: 100%;
             height: 80%;
         }
+        .divIconMarker
+        {
+            display: table;
+            text-align: center;
+        }
+        .divIconMarker span
+        {
+            display: table-cell;
+            vertical-align: middle;
+            color: white;
+        }
+        .newMarker-A1
+        {
+            background-image: url(../images/cluster/a1.png);
+            display: table;
+            text-align: center;
+            width: 53px;
+            height: 52px;
+        }
+        .newMarker-A2
+        {
+            background-image: url(../images/cluster/a2.png);
+            display: table;
+            text-align: center;
+            width: 60px;
+            height: 59px;
+        }
+        .newMarker-A3
+        {
+            background-image: url(../images/cluster/a3.png);
+            display: table;
+            text-align: center;
+            width: 66px;
+            height: 65px;
+        }
+        .newMarker-A4
+        {
+            background-image: url(../images/cluster/a4.png);
+            display: table;
+            text-align: center;
+            width: 78px;
+            height: 77px;
+        }
+        .newMarker-A5
+        {
+            background-image: url(../images/cluster/a5.png);
+            display: table;
+            text-align: center;
+            width: 90px;
+            height: 89px;
+        }
+        /*B*/
+        .newMarker-B1
+        {
+            background-image: url(../images/cluster/b1.png);
+            display: table;
+            text-align: center;
+            width: 53px;
+            height: 52px;
+        }
+        .newMarker-B2
+        {
+            background-image: url(../images/cluster/b2.png);
+            display: table;
+            text-align: center;
+            width: 60px;
+            height: 59px;
+        }
+        .newMarker-B3
+        {
+            background-image: url(../images/cluster/b3.png);
+            display: table;
+            text-align: center;
+            width: 66px;
+            height: 65px;
+        }
+        .newMarker-B4
+        {
+            background-image: url(../images/cluster/b4.png);
+            display: table;
+            text-align: center;
+            width: 78px;
+            height: 77px;
+        }
+        .newMarker-B5
+        {
+            background-image: url(../images/cluster/b5.png);
+            display: table;
+            text-align: center;
+            width: 90px;
+            height: 89px;
+        }
+        /*C*/
+        .newMarker-C1
+        {
+            background-image: url(../images/cluster/c1.png);
+            display: table;
+            text-align: center;
+            width: 53px;
+            height: 52px;
+        }
+        .newMarker-C2
+        {
+            background-image: url(../images/cluster/c2.png);
+            display: table;
+            text-align: center;
+            width: 60px;
+            height: 59px;
+        }
+        .newMarker-C3
+        {
+            background-image: url(../images/cluster/c3.png);
+            display: table;
+            text-align: center;
+            width: 66px;
+            height: 65px;
+        }
+        .newMarker-C4
+        {
+            background-image: url(../images/cluster/c4.png);
+            display: table;
+            text-align: center;
+            width: 78px;
+            height: 77px;
+        }
+        .newMarker-C5
+        {
+            background-image: url(../images/cluster/c5.png);
+            display: table;
+            text-align: center;
+            width: 90px;
+            height: 89px;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +176,11 @@
         Max zoom:
         <input type="text" id="txtMaxZoom" value="15" style="width: 50px" />
     </div>
+    <span>
+        <input id="Radio1" type="radio" name="cluster" checked="checked" />A</span>
+    <span>
+        <input id="Radio2" type="radio" name="cluster" />B</span> <span>
+            <input id="Radio3" type="radio" name="cluster" />C</span>
     <input type="button" id="btnRefresh" value="Refresh" onclick="getGeopoints()" />
     </form>
 </body>
@@ -71,7 +209,7 @@
         $.ajax({
             type: "POST",
             url: "Hmap.aspx/GetHistories",
-            data: "{ 'deviceSn': '2034667'}",
+            data: "{ 'deviceSn': ''}",
             context: this,
             crossDomain: false,
             contentType: "application/json",
@@ -97,7 +235,41 @@
             disableClusteringAtZoom: $("#txtDisableCluster").val(),
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
-            zoomToBoundsOnClick: false
+            zoomToBoundsOnClick: false,
+            iconCreateFunction: function (cluster) {
+                var childCount = cluster.getChildCount();
+                var size;
+
+                var c = ' newMarker-';
+                var iconSize = new L.Point(40, 40);
+                if (childCount < 10) {
+                    c += changeMarker(1);
+                    iconSize = new L.Point(53, 52);
+                    size = 'width:53px; height:52px';
+                } else if (childCount < 100) {
+                    c += changeMarker(2);
+                    iconSize = new L.Point(60, 59);
+                    size = 'width:60px; height:59px';
+                } else if (childCount < 1000) {
+                    c += changeMarker(3);
+                    iconSize = new L.Point(66, 65);
+                    size = 'width:66px; height:65px';
+                } else if (childCount < 10000) {
+                    c += changeMarker(4);
+                    iconSize = new L.Point(78, 77);
+                    size = 'width:78px; height:77px';
+                } else {
+                    c += changeMarker(5);
+                    iconSize = new L.Point(90, 89);
+                    size = 'width:90px; height:89px';
+                }
+
+                return new L.DivIcon({
+                    html: '<div class="divIconMarker" style="margin-top: 1px;margin-left: 1px;' + size + '"><span>' + childCount + '</span></div>',
+                    className: 'marker-cluster' + c,
+                    iconSize: iconSize
+                });
+            }
         });
 
         for (var i = 0; i < d.length; i++) {
@@ -111,6 +283,55 @@
         }
 
         map.addLayer(clusters);
-    }    
+    }
+
+    function changeMarker(input) {
+        if (input == 1) {
+            if ($('#Radio1').is(':checked')) {
+                return 'A1';
+            }
+            else if ($('#Radio2').is(':checked')) {
+                return 'B1';
+            } else {
+                return 'C1';
+            }
+        } else if (input == 2) {
+            if ($('#Radio1').is(':checked')) {
+                return 'A2';
+            }
+            else if ($('#Radio2').is(':checked')) {
+                return 'B2';
+            } else {
+                return 'C2';
+            }
+        } else if (input == 3) {
+            if ($('#Radio1').is(':checked')) {
+                return 'A3';
+            }
+            else if ($('#Radio2').is(':checked')) {
+                return 'B3';
+            } else {
+                return 'C3';
+            }
+        } else if (input == 4) {
+            if ($('#Radio1').is(':checked')) {
+                return 'A4';
+            }
+            else if ($('#Radio2').is(':checked')) {
+                return 'B4';
+            } else {
+                return 'C4';
+            }
+        } else {
+            if ($('#Radio1').is(':checked')) {
+                return 'A5';
+            }
+            else if ($('#Radio2').is(':checked')) {
+                return 'B5';
+            } else {
+                return 'C5';
+            }
+        }
+    }
 </script>
 </html>
