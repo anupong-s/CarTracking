@@ -357,6 +357,14 @@ var smarto = {
             var start = new google.maps.LatLng(pin._latlng.lat, pin._latlng.lng);
             var end = new google.maps.LatLng(m._latlng.lat, m._latlng.lng);
 
+            //fitBounds สำหรับ Pin กับ รถที่เลือกในตาราง
+            var markers = [];
+            markers.push(L.latLng(pin._latlng.lat, pin._latlng.lng));
+            markers.push(L.latLng(m._latlng.lat, m._latlng.lng));
+
+            var bounds = L.latLngBounds(markers);
+            map.fitBounds(bounds);
+            
             var request = {
                 origin: start,
                 destination: end,
