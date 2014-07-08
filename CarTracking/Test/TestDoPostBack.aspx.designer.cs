@@ -7,54 +7,45 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CarTracking {
+namespace CarTracking.Test {
     
     
-    public partial class SiteMaster {
+    public partial class TestDoPostBack {
         
         /// <summary>
-        /// HeadContent control.
+        /// udptext control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ContentPlaceHolder HeadContent;
+        protected global::System.Web.UI.UpdatePanel udptext;
         
         /// <summary>
-        /// ToolkitScriptManager1 control.
+        /// txtBox1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::AjaxControlToolkit.ToolkitScriptManager ToolkitScriptManager1;
+        protected global::System.Web.UI.WebControls.TextBox txtBox1;
         
         /// <summary>
-        /// HeadLoginView control.
+        /// lblMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginView HeadLoginView;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
         
         /// <summary>
-        /// NavigationMenu control.
+        /// btnTest control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Menu NavigationMenu;
-        
-        /// <summary>
-        /// MainContent control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
+        protected global::System.Web.UI.WebControls.Button btnTest;
     }
 }

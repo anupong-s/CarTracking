@@ -10,51 +10,42 @@
 namespace CarTracking {
     
     
-    public partial class SiteMaster {
+    public partial class TestBeforeUnload {
         
         /// <summary>
-        /// HeadContent control.
+        /// form1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ContentPlaceHolder HeadContent;
+        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// ToolkitScriptManager1 control.
+        /// reload control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::AjaxControlToolkit.ToolkitScriptManager ToolkitScriptManager1;
+        protected global::System.Web.UI.WebControls.Button reload;
         
         /// <summary>
-        /// HeadLoginView control.
+        /// btnGetData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LoginView HeadLoginView;
+        protected global::System.Web.UI.WebControls.Button btnGetData;
         
         /// <summary>
-        /// NavigationMenu control.
+        /// lblMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Menu NavigationMenu;
-        
-        /// <summary>
-        /// MainContent control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
     }
 }

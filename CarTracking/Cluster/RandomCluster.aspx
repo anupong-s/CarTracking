@@ -85,8 +85,7 @@
     <div id="map">
     </div>
     Number of random<asp:TextBox ID="txtNumberOfRandom" runat="server" Text="10000"></asp:TextBox>
-    <asp:Button ID="btnRefresh" runat="server" Text="Refresh"
-        OnClientClick="getGeopoints(); return false;" />
+    <asp:Button ID="btnRefresh" runat="server" Text="Refresh" OnClientClick="getGeopoints(); return false;" />
     </form>
 </body>
 <script type="text/javascript">
@@ -109,7 +108,7 @@
             context: this,
             crossDomain: false,
             dataType: 'json',
-            contentType: "application/json",
+            contentType: "application/json; charset=utf-8",
             success: function (a) {
                 OnSuccess(a.d);
             },
@@ -121,7 +120,9 @@
 
     }
 
-    function OnSuccess(d) {
+    function OnSuccess(data) {
+
+        var d = eval(data);
 
         if (clusters) {
             clusters.clearLayers();

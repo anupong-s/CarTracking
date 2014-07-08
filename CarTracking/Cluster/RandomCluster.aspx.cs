@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Script.Services;
 using System.Web.Services;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+using Newtonsoft.Json;
 
 namespace CarTracking.Cluster
 {
@@ -18,7 +15,7 @@ namespace CarTracking.Cluster
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static GeoPointInfo[] GetGeopoints(string numberOfRandom)
+        public static string GetGeopoints(string numberOfRandom)
         {
             var total = Convert.ToInt32(numberOfRandom);
 
@@ -43,7 +40,9 @@ namespace CarTracking.Cluster
                 });
             }
 
-            return result.ToArray();
+            return JsonConvert.SerializeObject(result);
+
+            //return result.ToArray();
         }
 
     }

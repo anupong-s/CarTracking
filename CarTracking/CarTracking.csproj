@@ -37,6 +37,7 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
@@ -66,6 +67,7 @@
     <Content Include="Cluster\GoogleMaps.aspx" />
     <Content Include="Cluster\Hmap.aspx" />
     <Content Include="Cluster\RandomCluster.aspx" />
+    <Content Include="DLL\Newtonsoft.Json.dll" />
     <Content Include="DLL\Telerik.Web.Design.dll" />
     <Content Include="DLL\Telerik.Web.UI.dll" />
     <Content Include="dragImage.aspx" />
@@ -146,9 +148,15 @@
     <Content Include="images\popup-tail.png" />
     <Content Include="index.html" />
     <Content Include="RouteDuration.aspx" />
+    <Content Include="Scripts\check_browser_close.js.js" />
+    <Content Include="Scripts\Edit.Circle.js" />
+    <Content Include="Scripts\Edit.Poly.js" />
+    <Content Include="Scripts\Edit.Rectangle.js" />
+    <Content Include="Scripts\Edit.SimpleShape.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\jquery-1.11.0.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="Scripts\Leaflet.draw.js" />
     <Content Include="Scripts\markerclusterer.js" />
     <Content Include="Scripts\overlapMarkerSpiderfy.min.js" />
     <Content Include="Scripts\select2.css" />
@@ -159,8 +167,12 @@
     <Content Include="Scripts\jquery-1.4.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.4.1.js" />
     <Content Include="Scripts\jquery-1.4.1.min.js" />
+    <Content Include="TestBeforeUnload.aspx" />
     <Content Include="TestCreateDOM.aspx" />
     <Content Include="TestGrid.aspx" />
+    <Content Include="TestImageFromResource.aspx" />
+    <Content Include="Test\TestDoPostBack.aspx" />
+    <Content Include="Test\TestGeofence.aspx" />
     <Content Include="Tracking.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -211,6 +223,7 @@
     <Compile Include="Classes\EPeriods.cs" />
     <Compile Include="Classes\GenerateByIndex.cs" />
     <Compile Include="Classes\GeoPointInfo.cs" />
+    <Compile Include="Classes\JsonCompressionModule.cs" />
     <Compile Include="Classes\Partition.cs" />
     <Compile Include="Classes\PinDto.cs" />
     <Compile Include="Classes\TrackingBase.cs">
@@ -271,6 +284,13 @@
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
     </Compile>
+    <Compile Include="TestBeforeUnload.aspx.cs">
+      <DependentUpon>TestBeforeUnload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TestBeforeUnload.aspx.designer.cs">
+      <DependentUpon>TestBeforeUnload.aspx</DependentUpon>
+    </Compile>
     <Compile Include="TestCreateDOM.aspx.cs">
       <DependentUpon>TestCreateDOM.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -284,6 +304,27 @@
     </Compile>
     <Compile Include="TestGrid.aspx.designer.cs">
       <DependentUpon>TestGrid.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TestImageFromResource.aspx.cs">
+      <DependentUpon>TestImageFromResource.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TestImageFromResource.aspx.designer.cs">
+      <DependentUpon>TestImageFromResource.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Test\TestDoPostBack.aspx.cs">
+      <DependentUpon>TestDoPostBack.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Test\TestDoPostBack.aspx.designer.cs">
+      <DependentUpon>TestDoPostBack.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Test\TestGeofence.aspx.cs">
+      <DependentUpon>TestGeofence.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Test\TestGeofence.aspx.designer.cs">
+      <DependentUpon>TestGeofence.aspx</DependentUpon>
     </Compile>
     <Compile Include="Tracking.aspx.cs">
       <DependentUpon>Tracking.aspx</DependentUpon>
